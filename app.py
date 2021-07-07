@@ -3,7 +3,7 @@ import numpy as np
 import dash
 import dash_html_components as html
 import dash_core_components as dcc
-from dash.dependencies import Output, Input
+from dash.dependencies import Output, Input, State
 
 import plotly.graph_objects as go
 
@@ -126,8 +126,9 @@ app.layout = html.Div(
                      children=[
                          dcc.Tab(label="ABSORPTION SPECTRA", value="AS-tab"),
                          dcc.Tab(label="ABSORPTION DATABASE", value="AD-tab"),
-                         dcc.Tab(label="PARTICLE SIZE DISTRIBUTION", value="PSD-tab"),
-                         dcc.Tab(label="INSTRUCTIONS", value="instructions-tab")
+                         dcc.Tab(label="FIT", value="NNLS-tab"),
+                         dcc.Tab(label="PSD", value="PSD-tab"),
+                         dcc.Tab(label="INSTRUCTIONS", value="instructions-tab"),
                          ], className="tabs"
                      ),
             html.Div(
@@ -160,26 +161,13 @@ def render_content(tab):
         ))
     elif tab == "PSD-tab":
         return dcc.Graph(figure=go.Figure([go.Bar(x=[1, 2, 3, 4, 5, 6], y=[2, 5, 3, 2, 0, 1])], go.Layout(dict(title="Particle Size Distribution"))))
-    else:
+    elif tab == "instructions-tab":
         return [html.Img(id="bla", src=app.get_asset_url("demo.gif"), style={"width": 700})]
-
-
-# @app.callback(
-#     Output("tab-graph", "figure"),
-#     Input("stitching-tabs", "value")
-# )
-# def render_content(tab):
-#     if tab == "AS-tab":
-#         return go.Figure(
-#             [go.Scatter(x=[1, 2, 3], y=[1, 4, 9], mode="lines")],
-#             go.Layout(dict(title="Absorption Spectra"), xaxis=dict(title="Wavelength (nm)"))
-#         )
-#     elif tab == "AD-tab":
-#         return go.Figure([], go.Layout())
-#     elif tab == "instructions-tab":
-#         return
-#     else:
-#         return
+    elif tab == "NNLS-tab":
+        return dcc.Graph(figure=go.Figure(
+            [go.Scatter(x=[1, 2, 3], y=np.array([1, 4, 9])*i, mode="lines") for i in range(10)]+[go.Scatter(x=[1,2,3], y=[20, 40, 60], mode="lines", name="fitted")],
+            go.Layout(dict(title="Absorption Database"), xaxis=dict(title="Wavelength (nm)"))
+        ))
 
 
 @app.callback(Output("stitching-tabs", "value"), [Input("execute-nnls", "n_clicks")])
@@ -187,6 +175,11 @@ def change_focus(click):
     if click:
         return "PSD-tab"
     return "AS-tab"
+
+
+# @app.callback(
+#     Output()
+# )
 
 
 if __name__ == '__main__':
