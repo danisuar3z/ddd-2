@@ -1,4 +1,8 @@
+import io
+import base64
+
 import numpy as np
+import pandas as pd
 
 import dash
 import dash_html_components as html
@@ -9,6 +13,7 @@ import plotly.graph_objects as go
 
 app = dash.Dash(__name__, meta_tags=[{"name": "viewport", "content": "width=device-width"}])
 # app = dash.Dash(__name__)
+app.config.suppress_callback_exceptions = True
 app.title = "DdD 2.0"
 
 
@@ -150,10 +155,7 @@ app.layout = html.Div(
 )
 def render_content(tab):
     if tab == "AS-tab":
-        return dcc.Graph(figure=go.Figure(
-            [go.Scatter(x=[1, 2, 3], y=[1, 4, 9], mode="lines")],
-            go.Layout(dict(title="Absorption Spectra"), xaxis=dict(title="Wavelength (nm)"))
-        ))
+        return html.Div(id="graph-AS")
     elif tab == "AD-tab":
         return dcc.Graph(figure=go.Figure(
             [go.Scatter(x=[1, 2, 3], y=np.array([1, 4, 9])*i, mode="lines") for i in range(10)],
@@ -177,11 +179,51 @@ def change_focus(click):
     return "AS-tab"
 
 
-# @app.callback(
-#     Output()
-# )
+def parse_AS(contents, filename):
+    global df_AS
+    content_type, content_string = contents.split(",")
 
+    decoded = base64.b64decode(content_string)
+    try:
+        if filename.endswith(".csv"):
+            df_AS = pd.read_csv(
+                io.StringIO(decoded.decode("utf-8"))
+            )
+        elif filename.endswith(".xls") or filename.endswith(".xlsx"):
+            df_AS = pd.read_excel(
+                io.BytesIO(decoded)
+            )
+    except Exception as e:
+        print(e)  # TODO: Log? with open append mode datetime now() and exception
+        return html.H1(["There was an error processing this file"])
+    return dcc.Graph(
+        figure = {
+            "data": [go.Scatter(x=df_AS.Wavelength, y=df_AS.Absorbance, mode="lines")],
+            "layout": {
+                "title": "Absorption Spectra",
+                "xaxis": dict(title="Wavelength (nm)"),
+                "yaxis": dict(title="Absorbance")
+            }
+        }
+    )
+
+
+@app.callback(
+    Output("graph-AS", "children"),
+    Input("upload-AS", "contents"),
+    State("upload-AS", "filename")
+)
+def update_AS(contents, filename):
+    global df_AS
+    if contents:
+        children = [
+            html.H2([f"Using \"{filename}\""], style={"color": "black"}),
+            parse_AS(contents, filename)
+        ]
+    else:
+        children = html.H1(["There was an error processing this file"])
+    return children
 
 if __name__ == '__main__':
-    # app.run_server(debug=True, port=5050)
-    app.run_server(debug=True, host="0.0.0.0")
+    app.run_server(debug=True, port=5050)
+    # app.run_server(debug=True, host="0.0.0.0")
