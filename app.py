@@ -3,6 +3,7 @@ import base64
 
 import numpy as np
 import pandas as pd
+from scipy.optimize import nnls, curve_fit
 
 import dash
 import dash_html_components as html
@@ -13,7 +14,7 @@ import plotly.graph_objects as go
 
 app = dash.Dash(__name__, meta_tags=[{"name": "viewport", "content": "width=device-width"}])
 # app = dash.Dash(__name__)
-app.config.suppress_callback_exceptions = True
+app.config.suppress_callback_exceptions = True  # NOT WORKING
 app.title = "DdD 2.0"
 
 
@@ -157,31 +158,76 @@ def render_content(tab):
     if tab == "AS-tab":
         return html.Div(id="graph-AS")
     elif tab == "AD-tab":
-        return dcc.Graph(figure=go.Figure(
-            [go.Scatter(x=[1, 2, 3], y=np.array([1, 4, 9])*i, mode="lines") for i in range(10)],
-            go.Layout(dict(title="Absorption Database"), xaxis=dict(title="Wavelength (nm)"))
-        ))
+        return html.Div(id="graph-AD")
+    elif tab == "NNLS-tab":
+        return html.Div(id="graph-NNLS")
     elif tab == "PSD-tab":
         return dcc.Graph(figure=go.Figure([go.Bar(x=[1, 2, 3, 4, 5, 6], y=[2, 5, 3, 2, 0, 1])], go.Layout(dict(title="Particle Size Distribution"))))
     elif tab == "instructions-tab":
         return [html.Img(id="bla", src=app.get_asset_url("demo.gif"), style={"width": 700})]
-    elif tab == "NNLS-tab":
-        return dcc.Graph(figure=go.Figure(
-            [go.Scatter(x=[1, 2, 3], y=np.array([1, 4, 9])*i, mode="lines") for i in range(10)]+[go.Scatter(x=[1,2,3], y=[20, 40, 60], mode="lines", name="fitted")],
-            go.Layout(dict(title="Absorption Database"), xaxis=dict(title="Wavelength (nm)"))
-        ))
 
 
-@app.callback(Output("stitching-tabs", "value"), [Input("execute-nnls", "n_clicks")])
-def change_focus(click):
+#FUNCION NUEVA
+@app.callback(
+    Output("graph-NNLS", "children"),
+    [Input("execute-nnls", "n_clicks")]
+)
+def update_NNLS(click):
+    global df_AD
+    global df_AS
+    global df_PSD
+    print("DEBUG: change_focus executed")
     if click:
-        return "PSD-tab"
-    return "AS-tab"
+        df_PSD = df_AD[df_AD.columns[1:]]
+        NPsizes_frequency, _ = nnls(df_PSD, df_AS.Absorbance)
+        trace_fit = go.Scatter(x=df_AS.Wavelength, y=np.matmul(df_PSD, NPsizes_frequency),
+            mode="lines", name="Fit",)
+        traces_AD_NNLS = [go.Scatter(x=df_AD.Wavelength, y=df_AD[col]*NPsizes_frequency[df_PSD.columns.get_loc(col)], name=col) for col in df_PSD.columns]
+        trace_AS = go.Scatter(x=df_AS.Wavelength, y=df_AS.Absorbance, mode="lines", name="Data")
+        traces = [trace_AS, trace_fit, *traces_AD_NNLS]
+        layout = go.Layout(
+            title="NNLS",
+            xaxis=dict(title="Wavelength (nm)"),
+            yaxis=dict(title="Absorbance")
+        )
+        return dcc.Graph(figure=go.Figure(traces, layout))
+
+
+# FUNBCION ANTERIOR
+# @app.callback(
+#     [Output("stitching-tabs", "value"),
+#      Output("graph-NNLS", "children")],
+#     [Input("execute-nnls", "n_clicks")]
+# )
+# def change_focus(click):
+#     print("DEBUG: change_focus executed")
+#     if click:
+#         df_PSD = df_AD[df_AD.columns[1:]]
+#         NPsizes_frequency, _ = nnls(df_PSD, df_AS.Absorbance)
+#         trace_fit = go.Scatter(x=df_AS.Wavelength, y=np.matmul(df_PSD, NPsizes_frequency),
+#             mode="lines", name="Fit",)
+#         traces_AD_NNLS = [go.Scatter(x=df_AD.Wavelength, y=df_AD[col]*NPsizes_frequency[df_PSD.columns.get_loc(col)], name=col) for col in df_PSD.columns]
+#         trace_AS = go.Scatter(x=df_AS.Wavelength, y=df_AS.Absorbance, mode="lines", name="Data")
+#         traces = [trace_AS, trace_fit, *traces_AD_NNLS]
+#         layout = go.Layout(
+#             title="NNLS",
+#             xaxis=dict(title="Wavelength (nm)"),
+#             yaxis=dict(title="Absorbance")
+#         )
+#         return [
+#             "NNLS-tab",
+#             dcc.Graph(figure=go.Figure(traces, layout))
+#         ]
+#     return ["AS-tab", None]
+
+
+# ABSORPTION SPECTRA
 
 
 def parse_AS(contents, filename):
+    print("DEBUG: parse_AS being executed!")
     global df_AS
-    content_type, content_string = contents.split(",")
+    _, content_string = contents.split(",")
 
     decoded = base64.b64decode(content_string)
     try:
@@ -214,15 +260,78 @@ def parse_AS(contents, filename):
     State("upload-AS", "filename")
 )
 def update_AS(contents, filename):
-    global df_AS
     if contents:
         children = [
             html.H2([f"Using \"{filename}\""], style={"color": "black"}),
             parse_AS(contents, filename)
         ]
     else:
-        children = html.H1(["There was an error processing this file"])
+        children = html.H1(["First upload the Absorption Spectra"])
     return children
+
+
+# ABSORPTION DATABASE
+
+
+def parse_AD(contents, filename):
+    print("DEBUG: parse_AD being executed!")
+    global df_AD
+    _, content_string = contents.split(",")
+
+    decoded = base64.b64decode(content_string)
+    try:
+        if filename.endswith(".csv"):
+            df_AD = pd.read_csv(
+                io.StringIO(decoded.decode("utf-8"))
+            )
+            df_AD.columns = ["Wavelength", *df_AD.columns[1:]]
+        elif filename.endswith(".xls") or filename.endswith(".xlsx"):
+            df_AD = pd.read_excel(
+                io.BytesIO(decoded)
+            )
+            df_AD.columns = ["Wavelength", *df_AD.columns[1:]]
+    except Exception as e:
+        print(e)  # TODO: Log? with open append mode datetime now() and exception
+        return html.H1(["There was an error processing this file"])
+    return dcc.Graph(
+        figure = {
+            "data": [go.Scatter(x=df_AD.Wavelength, y=df_AD[col], mode="lines", name=col) for col in df_AD.columns[1:]],
+            "layout": {
+                "title": "Absorption Database",
+                "xaxis": dict(title="Wavelength (nm)"),
+                "yaxis": dict(title="Absorbance")
+            }
+        }
+    )
+
+
+@app.callback(
+    Output("graph-AD", "children"),
+    Input("upload-AD", "contents"),
+    State("upload-AD", "filename")
+)
+def update_AD(contents, filename):
+    if contents:
+        children = [
+            html.H2([f"Using \"{filename}\""], style={"color": "black"}),
+            parse_AD(contents, filename)
+        ]
+    else:
+        children = html.H1(["Please upload the Absorption Database"])
+    return children
+
+
+# NNLS
+
+
+# @app.callback(
+#     Output("graph-NNLS", "children"),
+#     Input("execute-nnls", "n_clicks")
+# )
+# def update_NNLS(click):
+#     if click:
+
+
 
 if __name__ == '__main__':
     app.run_server(debug=True, port=5050)
