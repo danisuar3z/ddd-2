@@ -1,5 +1,6 @@
 import io
 import base64
+import pathlib
 
 import numpy as np
 import pandas as pd
@@ -12,17 +13,22 @@ from dash.dependencies import Output, Input, State
 
 import plotly.graph_objects as go
 
+PATH = pathlib.Path(__file__).parent
+
 app = dash.Dash(__name__, meta_tags=[{"name": "viewport", "content": "width=device-width"}])
 # app = dash.Dash(__name__)
 app.config.suppress_callback_exceptions = True  # NOT WORKING
 app.title = "DdD 2.0"
 
 
+def lognormal(x, mu, s):
+    return (1/(x*s*np.sqrt(2*np.pi))) * (np.exp(-(((np.log(x/mu))**2)/(2*s**2))))
+
+
 def instructions():
     return html.P([
         """
-        - blabla
-        - blabla"""],
+        DOI: 10.1039/c9na00344"""],
         className="instructions-sidebar")
 
 
@@ -33,12 +39,12 @@ app.layout = html.Div(
                 html.Img(
                     src=app.get_asset_url("ga_white.png"), className="plotly-logo"
                     ),
-                html.H1(children="DDD for SNPs"),
+                html.H1(children="DdD for SNPs"),
                 instructions(),
                 html.Div(
                     [
                         html.Button(
-                            "LINK AL PAPER?",
+                            "COMO CITAR",
                             className="button_instruction",
                             id="learn-more-button",
                             ),
@@ -108,12 +114,14 @@ app.layout = html.Div(
                         html.Hr(),
                         html.Label("5- Input treshold to filter (in nm)"),
                         dcc.Input(
-                            id="overlap-stitch", type="number", value=2.45, min=0, max=10
+                            id="input-filter", type="number", value=2.45, min=0, max=10,
+                            style={"width": "10vw"}
                         ),
                         dcc.Checklist(
-                            id="filter-data",
+                            id="checklist-filter",
                             options=[{"label": "Filter data", "value": 1}],
                             value=[0],
+                            style={"display": "inline-block", "width": "16vh"}
                         ),
                     ],
                     ),
@@ -162,9 +170,42 @@ def render_content(tab):
     elif tab == "NNLS-tab":
         return html.Div(id="graph-NNLS")
     elif tab == "PSD-tab":
-        return dcc.Graph(figure=go.Figure([go.Bar(x=[1, 2, 3, 4, 5, 6], y=[2, 5, 3, 2, 0, 1])], go.Layout(dict(title="Particle Size Distribution"))))
+        return html.Div(id="graph-PSD")
     elif tab == "instructions-tab":
         return [html.Img(id="bla", src=app.get_asset_url("demo.gif"), style={"width": 700})]
+
+
+def demo_explanation():
+    # Markdown files
+    with open(PATH.joinpath("demo.md"), "r") as file:
+        demo_md = file.read()
+
+    return html.Div(
+        html.Div([dcc.Markdown(demo_md, className="markdown")]),
+        style={"margin": "10px"},
+    )
+
+
+@app.callback(
+    [Output("demo-explanation", "children"),
+    Output("learn-more-button", "children")],
+    [Input("learn-more-button", "n_clicks")],
+)
+def learn_more(n_clicks):
+    if n_clicks is None:
+        n_clicks = 0
+    if (n_clicks % 2) == 1:
+        n_clicks += 1
+        return (
+            html.Div(
+                className="demo_container",
+                style={"margin-bottom": "30px"},
+                children=[demo_explanation()],
+            ),
+            "Close",
+        )
+    n_clicks += 1
+    return (html.Div(), "COMO CITAR")
 
 
 #FUNCION NUEVA
@@ -176,7 +217,8 @@ def update_NNLS(click):
     global df_AD
     global df_AS
     global df_PSD
-    print("DEBUG: change_focus executed")
+    global NPsizes_frequency
+    print("DEBUG: update_NNLS executed")
     if click:
         df_PSD = df_AD[df_AD.columns[1:]]
         NPsizes_frequency, _ = nnls(df_PSD, df_AS.Absorbance)
@@ -193,6 +235,14 @@ def update_NNLS(click):
         return dcc.Graph(figure=go.Figure(traces, layout))
 
 
+@app.callback(
+    Output("stitching-tabs", "value"),
+    Input("execute-nnls", "n_clicks")
+)
+def change_focus(click):
+    if click:
+        return "NNLS-tab"
+    return "AS-tab"
 # FUNBCION ANTERIOR
 # @app.callback(
 #     [Output("stitching-tabs", "value"),
@@ -266,7 +316,7 @@ def update_AS(contents, filename):
             parse_AS(contents, filename)
         ]
     else:
-        children = html.H1(["First upload the Absorption Spectra"])
+        children = html.H1(["Please upload the Absorption Spectra"])
     return children
 
 
@@ -318,7 +368,7 @@ def update_AD(contents, filename):
         ]
     else:
         children = html.H1(["Please upload the Absorption Database"])
-    return children
+    return [children, "tab-AD"]
 
 
 # NNLS
@@ -331,6 +381,88 @@ def update_AD(contents, filename):
 # def update_NNLS(click):
 #     if click:
 
+
+# PSD
+
+def parse_Jac(contents, filename):
+    global df_Jac
+    global NPsizes_frequency
+    print("DEBUG: parse_Jac being executed!")
+    _, content_string = contents.split(",")
+
+    decoded = base64.b64decode(content_string)
+    try:
+        if filename.endswith(".csv"):
+            df_Jac = pd.read_csv(
+                io.StringIO(decoded.decode("utf-8"))
+            )
+        elif filename.endswith(".xls") or filename.endswith(".xlsx"):
+            df_Jac = pd.read_excel(
+                io.BytesIO(decoded)
+            )
+    except Exception as e:
+        print(e)  # TODO: Log? with open append mode datetime now() and exception
+        return html.H1(["There was an error processing this file"])
+    fit_x_values = np.linspace(min(df_Jac['Size']), max(df_Jac['Size']), 50)
+    y_data = NPsizes_frequency*df_Jac["J"]
+    y_data /= y_data.max()
+    params, _ = curve_fit(lognormal, df_Jac["Size"], y_data)
+    traces = [
+        go.Bar(x=df_Jac["Size"], y=y_data, name="DdD"),
+        go.Scatter(x=fit_x_values, y=lognormal(fit_x_values, params[0], params[1]), name="Lognormal fit")
+    ]
+    mean = np.exp(np.log(params[0]) + 0.5*params[1]*params[1])
+    dev = np.exp(np.log(params[0]) + 0.5*params[1]*params[1]) * np.sqrt(np.exp(params[1]*params[1]) - 1)
+    annotation_mean = {
+        "x": 5,
+        "y": 0.8,
+        "text": f"Mean = {mean:.2f} nm",
+        "showarrow": False,
+        "font": {"size": 25, "color": "black"}
+    }
+    annotation_dev = {
+        "x": 5,
+        "y": 0.7,
+        "text": f"Deviation = {dev:.2f} nm",
+        "showarrow": False,
+        "font": {"size": 25, "color": "black"}
+    }
+    return dcc.Graph(
+        figure=go.Figure(
+            data=traces,
+            layout=go.Layout(
+                title="Particle Size Distribution by DdD",
+                xaxis=dict(title="Particle size (nm)"),
+                annotations=[annotation_mean, annotation_dev]
+            )
+        )
+    )
+
+
+@app.callback(
+    Output("graph-PSD", "children"),
+    Input("upload-Jac", "contents"),
+    State("upload-Jac", "filename")
+)
+def update_Jac(contents, filename):
+    if contents:
+        children = [
+            html.H2([f"Using \"{filename}\""], style={"color": "black"}),
+            parse_Jac(contents, filename)
+        ]
+    else:
+        children = html.H1(["Please upload the Jacobian"])
+    return children
+
+
+# FILTER
+
+
+# @app.callback(
+#     Output("graph-PSD", "children"),
+#     [Input("input-filter", "value"),
+#     Input("checklist-filter", "value")]
+# )
 
 
 if __name__ == '__main__':

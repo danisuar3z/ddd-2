@@ -374,7 +374,7 @@ input[type="button"].button-primary:focus {
 #stitching-tabs>div:nth-child(4),
 #stitching-tabs>div:nth-child(5) {
   background-color: white;
-/*  border-color: transparent;*//* ESTO ESTA BUENO PERO NO SE VEIA LA SELECCIONADA*/
+  /* border-color: transparent;ESTO ESTA BUENO PERO NO SE VEIA LA SELECCIONADA */
 }
 
 #stitching-tabs>div.jsx-2137964197.tab.tab--selected {
@@ -1131,7 +1131,7 @@ there.
     border: 2px gray solid;
     font-size: 20px;
     margin-right: 35px;
-    color: #000;
+    color: #8898B2;
     border-style: dashed;
     border-width: 1px;
     border-radius: 5px;
@@ -1147,7 +1147,7 @@ there.
     border: 2px gray solid;
     font-size: 20px;
     margin-right: 35px;
-    color: #000;
+    color: #8898B2;
     border-style: dashed;
     border-width: 1px;
     border-radius: 5px;
@@ -1184,7 +1184,6 @@ there.
     color: #D1D1D1;
 
   }
-
 
 
 }
