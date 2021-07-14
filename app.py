@@ -227,22 +227,35 @@ def update_NNLS(click):
         traces_AD_NNLS = [go.Scatter(x=df_AD.Wavelength, y=df_AD[col]*NPsizes_frequency[df_PSD.columns.get_loc(col)], name=col) for col in df_PSD.columns]
         trace_AS = go.Scatter(x=df_AS.Wavelength, y=df_AS.Absorbance, mode="lines", name="Data")
         traces = [trace_AS, trace_fit, *traces_AD_NNLS]
-        layout = go.Layout(
-            title="NNLS",
-            xaxis=dict(title="Wavelength (nm)"),
-            yaxis=dict(title="Absorbance")
-        )
-        return dcc.Graph(figure=go.Figure(traces, layout))
+        layout ={
+                "title": "Absorption Spectra",
+                "xaxis": dict(title="Wavelength (nm)"),
+                "yaxis": dict(title="Absorbance")
+            }
+        # layout = go.Layout(
+        #     title="NNLS",
+        #     xaxis=dict(title="Wavelength (nm)"),
+        #     yaxis=dict(title="Absorbance")
+        # )
+        return dcc.Graph(figure={"data": traces, "layout": layout})
 
 
 @app.callback(
     Output("stitching-tabs", "value"),
-    Input("execute-nnls", "n_clicks")
+    Input("execute-nnls", "n_clicks"),
+    Input("upload-AD", "filename"),
+    Input("upload-Jac", "filename")
 )
-def change_focus(click):
-    if click:
+def change_focus(click, filename_AD, filename_Jac):
+    # Return order is key to the correct behavior
+    if filename_Jac:
+        return "PSD-tab"
+    elif click:
         return "NNLS-tab"
+    elif filename_AD:
+        return "AD-tab"
     return "AS-tab"
+
 # FUNBCION ANTERIOR
 # @app.callback(
 #     [Output("stitching-tabs", "value"),
@@ -368,7 +381,7 @@ def update_AD(contents, filename):
         ]
     else:
         children = html.H1(["Please upload the Absorption Database"])
-    return [children, "tab-AD"]
+    return children
 
 
 # NNLS
