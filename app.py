@@ -7,6 +7,7 @@ import pandas as pd
 from scipy.optimize import nnls, curve_fit
 
 import dash
+from dash_daq import BooleanSwitch
 import dash_html_components as html
 import dash_core_components as dcc
 from dash.dependencies import Output, Input, State
@@ -37,7 +38,7 @@ app.layout = html.Div(
         html.Div(
             [
                 html.Img(
-                    src=app.get_asset_url("ga_white.png"), className="plotly-logo"
+                    src=app.get_asset_url("ga_white.png"), className="ddd-logo"
                     ),
                 html.H1(children="DdD for SNPs"),
                 instructions(),
@@ -117,12 +118,18 @@ app.layout = html.Div(
                             id="input-filter", type="number", value=2.45, min=0, max=10,
                             style={"width": "10vw"}
                         ),
-                        dcc.Checklist(
-                            id="checklist-filter",
-                            options=[{"label": "Filter data", "value": 1}],
-                            value=[0],
-                            style={"display": "inline-block", "width": "16vh"}
-                        ),
+                        # dcc.Checklist(
+                        #     id="checklist-filter",
+                        #     options=[{"label": "Filter data", "value": 1}],
+                        #     value=[0],
+                        #     style={"display": "inline-block", "width": "16vh"}
+                        # ),
+                        BooleanSwitch(
+                            id="switch-filter",
+                            on=False,
+                            color="#BE4B53",
+                            style={"display": "inline-block", "width": "10vh", "vertical-align": "bottom"}
+                        )
                     ],
                     ),
                 html.Label("6- Export PSD data to .csv file"),
@@ -441,14 +448,14 @@ def parse_Jac(contents, filename):
         "font": {"size": 25, "color": "black"}
     }
     return dcc.Graph(
-        figure=go.Figure(
-            data=traces,
-            layout=go.Layout(
+        figure={
+            "data": traces,
+            "layout": go.Layout(
                 title="Particle Size Distribution by DdD",
                 xaxis=dict(title="Particle size (nm)"),
                 annotations=[annotation_mean, annotation_dev]
             )
-        )
+        }
     )
 
 
