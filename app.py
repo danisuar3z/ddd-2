@@ -115,7 +115,9 @@ app.layout = html.Div(
                         html.Hr(),
                         html.Label("5- Input treshold to filter (in nm)"),
                         dcc.Input(
-                            id="input-filter", type="number", value=2.45, min=0, max=10,
+                            id="input-filter", type="number",
+                            value=None, min=0, max=10,
+                            step="any", placeholder="E.g. 2,4",
                             style={"width": "10vw"}
                         ),
                         # dcc.Checklist(
@@ -158,7 +160,6 @@ app.layout = html.Div(
                 style={"text-align": "left", "margin": "auto"},
             ),
             html.Div(className="upload_zone", id="upload-stitch", children=[]),
-            # dcc.Graph(id="tab-graph")
         ], className="eight columns result",)
     ], className="row twelve columns",
 
@@ -213,38 +214,6 @@ def learn_more(n_clicks):
         )
     n_clicks += 1
     return (html.Div(), "COMO CITAR")
-
-
-#FUNCION NUEVA
-@app.callback(
-    Output("graph-NNLS", "children"),
-    [Input("execute-nnls", "n_clicks")]
-)
-def update_NNLS(click):
-    global df_AD
-    global df_AS
-    global df_PSD
-    global NPsizes_frequency
-    print("DEBUG: update_NNLS executed")
-    if click:
-        df_PSD = df_AD[df_AD.columns[1:]]
-        NPsizes_frequency, _ = nnls(df_PSD, df_AS.Absorbance)
-        trace_fit = go.Scatter(x=df_AS.Wavelength, y=np.matmul(df_PSD, NPsizes_frequency),
-            mode="lines", name="Fit",)
-        traces_AD_NNLS = [go.Scatter(x=df_AD.Wavelength, y=df_AD[col]*NPsizes_frequency[df_PSD.columns.get_loc(col)], name=col) for col in df_PSD.columns]
-        trace_AS = go.Scatter(x=df_AS.Wavelength, y=df_AS.Absorbance, mode="lines", name="Data")
-        traces = [trace_AS, trace_fit, *traces_AD_NNLS]
-        layout ={
-                "title": "Absorption Spectra",
-                "xaxis": dict(title="Wavelength (nm)"),
-                "yaxis": dict(title="Absorbance")
-            }
-        # layout = go.Layout(
-        #     title="NNLS",
-        #     xaxis=dict(title="Wavelength (nm)"),
-        #     yaxis=dict(title="Absorbance")
-        # )
-        return dcc.Graph(figure={"data": traces, "layout": layout})
 
 
 @app.callback(
@@ -394,17 +363,40 @@ def update_AD(contents, filename):
 # NNLS
 
 
-# @app.callback(
-#     Output("graph-NNLS", "children"),
-#     Input("execute-nnls", "n_clicks")
-# )
-# def update_NNLS(click):
-#     if click:
+@app.callback(
+    Output("graph-NNLS", "children"),
+    [Input("execute-nnls", "n_clicks")]
+)
+def update_NNLS(click):
+    global df_AD
+    global df_AS
+    global df_PSD
+    global NPsizes_frequency
+    print("DEBUG: update_NNLS executed")
+    if click:
+        df_PSD = df_AD[df_AD.columns[1:]]
+        NPsizes_frequency, _ = nnls(df_PSD, df_AS.Absorbance)
+        trace_fit = go.Scatter(x=df_AS.Wavelength, y=np.matmul(df_PSD, NPsizes_frequency),
+            mode="lines", name="Fit",)
+        traces_AD_NNLS = [go.Scatter(x=df_AD.Wavelength, y=df_AD[col]*NPsizes_frequency[df_PSD.columns.get_loc(col)], name=col) for col in df_PSD.columns]
+        trace_AS = go.Scatter(x=df_AS.Wavelength, y=df_AS.Absorbance, mode="lines", name="Data")
+        traces = [trace_AS, trace_fit, *traces_AD_NNLS]
+        layout ={
+                "title": "Absorption Spectra",
+                "xaxis": dict(title="Wavelength (nm)"),
+                "yaxis": dict(title="Absorbance")
+            }
+        # layout = go.Layout(
+        #     title="NNLS",
+        #     xaxis=dict(title="Wavelength (nm)"),
+        #     yaxis=dict(title="Absorbance")
+        # )
+        return dcc.Graph(figure={"data": traces, "layout": layout})
 
 
 # PSD
 
-def parse_Jac(contents, filename):
+def parse_Jac(contents, filename, filter_on, filter_value):
     global df_Jac
     global NPsizes_frequency
     print("DEBUG: parse_Jac being executed!")
@@ -426,6 +418,10 @@ def parse_Jac(contents, filename):
     fit_x_values = np.linspace(min(df_Jac['Size']), max(df_Jac['Size']), 50)
     y_data = NPsizes_frequency*df_Jac["J"]
     y_data /= y_data.max()
+    if filter_on:
+        for i in df_Jac["Size"].index:
+            if df_Jac["Size"].iloc[i] < filter_value:
+                y_data.iloc[i] = 0
     params, _ = curve_fit(lognormal, df_Jac["Size"], y_data)
     traces = [
         go.Bar(x=df_Jac["Size"], y=y_data, name="DdD"),
@@ -462,13 +458,16 @@ def parse_Jac(contents, filename):
 @app.callback(
     Output("graph-PSD", "children"),
     Input("upload-Jac", "contents"),
-    State("upload-Jac", "filename")
+    Input("switch-filter", "on"),
+    Input("input-filter", "value"),
+    State("upload-Jac", "filename"),
 )
-def update_Jac(contents, filename):
+def update_Jac(contents, filter_on, filter_value, filename):
+    print("DEBUG: FILTER VALUE:", filter_value)
     if contents:
         children = [
             html.H2([f"Using \"{filename}\""], style={"color": "black"}),
-            parse_Jac(contents, filename)
+            parse_Jac(contents, filename, filter_on, filter_value)
         ]
     else:
         children = html.H1(["Please upload the Jacobian"])
@@ -476,7 +475,6 @@ def update_Jac(contents, filename):
 
 
 # FILTER
-
 
 # @app.callback(
 #     Output("graph-PSD", "children"),
