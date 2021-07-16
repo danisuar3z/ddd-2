@@ -40,7 +40,7 @@ app.layout = html.Div(
                 html.Img(
                     src=app.get_asset_url("ga_white.png"), className="ddd-logo"
                     ),
-                html.H1(children="DdD for SNPs"),
+                html.H1(children="Diameter distribution for SNPs"),
                 instructions(),
                 html.Div(
                     [
@@ -120,22 +120,30 @@ app.layout = html.Div(
                             step="any", placeholder="E.g. 2,4",
                             style={"width": "10vw"}
                         ),
-                        # dcc.Checklist(
-                        #     id="checklist-filter",
-                        #     options=[{"label": "Filter data", "value": 1}],
-                        #     value=[0],
-                        #     style={"display": "inline-block", "width": "16vh"}
-                        # ),
                         BooleanSwitch(
                             id="switch-filter",
                             on=False,
                             color="#BE4B53",
-                            style={"display": "inline-block", "width": "10vh", "vertical-align": "bottom"}
+                            style={"display": "inline-block", "width": "10vh",
+                                   "vertical-align": "bottom"}
+                        ),
+                        html.Label("6- Input value to scale"),
+                        dcc.Input(
+                            id="input-scale", type="number",
+                            value=None, min=0, max=1000,
+                            step="any", placeholder="E.g. 30",
+                            style={"width": "10vw"}
+                        ),
+                        BooleanSwitch(
+                            id="switch-scale",
+                            on=False,
+                            color="#BE4B53",
+                            style={"display": "inline-block", "width": "10vh",
+                                   "vertical-align": "bottom"}
                         )
                     ],
                     ),
-                html.Label("6- Export PSD data to .csv file"),
-                # html.Br(),
+                html.Label("7- Export PSD data to .csv file"),
                 html.Button(
                     "Export data", id="button-stitch", className="button_submit"
                     ),
@@ -190,7 +198,7 @@ def demo_explanation():
 
     return html.Div(
         html.Div([dcc.Markdown(demo_md, className="markdown")]),
-        style={"margin": "10px"},
+        style={"margin": "12px"},
     )
 
 
@@ -231,33 +239,6 @@ def change_focus(click, filename_AD, filename_Jac):
     elif filename_AD:
         return "AD-tab"
     return "AS-tab"
-
-# FUNBCION ANTERIOR
-# @app.callback(
-#     [Output("stitching-tabs", "value"),
-#      Output("graph-NNLS", "children")],
-#     [Input("execute-nnls", "n_clicks")]
-# )
-# def change_focus(click):
-#     print("DEBUG: change_focus executed")
-#     if click:
-#         df_PSD = df_AD[df_AD.columns[1:]]
-#         NPsizes_frequency, _ = nnls(df_PSD, df_AS.Absorbance)
-#         trace_fit = go.Scatter(x=df_AS.Wavelength, y=np.matmul(df_PSD, NPsizes_frequency),
-#             mode="lines", name="Fit",)
-#         traces_AD_NNLS = [go.Scatter(x=df_AD.Wavelength, y=df_AD[col]*NPsizes_frequency[df_PSD.columns.get_loc(col)], name=col) for col in df_PSD.columns]
-#         trace_AS = go.Scatter(x=df_AS.Wavelength, y=df_AS.Absorbance, mode="lines", name="Data")
-#         traces = [trace_AS, trace_fit, *traces_AD_NNLS]
-#         layout = go.Layout(
-#             title="NNLS",
-#             xaxis=dict(title="Wavelength (nm)"),
-#             yaxis=dict(title="Absorbance")
-#         )
-#         return [
-#             "NNLS-tab",
-#             dcc.Graph(figure=go.Figure(traces, layout))
-#         ]
-#     return ["AS-tab", None]
 
 
 # ABSORPTION SPECTRA
@@ -396,7 +377,7 @@ def update_NNLS(click):
 
 # PSD
 
-def parse_Jac(contents, filename, filter_on, filter_value):
+def parse_Jac(contents, filename, filter_on, filter_value, scale_on, scale_value):
     global df_Jac
     global NPsizes_frequency
     print("DEBUG: parse_Jac being executed!")
@@ -422,6 +403,9 @@ def parse_Jac(contents, filename, filter_on, filter_value):
         for i in df_Jac["Size"].index:
             if df_Jac["Size"].iloc[i] < filter_value:
                 y_data.iloc[i] = 0
+            elif scale_on:
+                y_data.iloc[i] *= scale_value
+        # NO ESTOY CONSIDERANDO FILTER OFF SCALE ON
     params, _ = curve_fit(lognormal, df_Jac["Size"], y_data)
     traces = [
         go.Bar(x=df_Jac["Size"], y=y_data, name="DdD"),
@@ -460,17 +444,19 @@ def parse_Jac(contents, filename, filter_on, filter_value):
     Input("upload-Jac", "contents"),
     Input("switch-filter", "on"),
     Input("input-filter", "value"),
+    Input("switch-scale", "on"),
+    Input("input-scale", "value"),
     State("upload-Jac", "filename"),
 )
-def update_Jac(contents, filter_on, filter_value, filename):
+def update_Jac(contents, filter_on, filter_value, scale_on, scale_value, filename):
     print("DEBUG: FILTER VALUE:", filter_value)
     if contents:
         children = [
             html.H2([f"Using \"{filename}\""], style={"color": "black"}),
-            parse_Jac(contents, filename, filter_on, filter_value)
+            parse_Jac(contents, filename, filter_on, filter_value, scale_on, scale_value)
         ]
     else:
-        children = html.H1(["Please upload the Jacobian"])
+        children = html.H1(["Please upload the Jacobian file"])
     return children
 
 
