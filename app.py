@@ -144,8 +144,18 @@ app.layout = html.Div(
                     ],
                     ),
                 html.Label("7- Export PSD data to .csv file"),
+                dcc.RadioItems(
+                    id="radio-download",
+                    options=[
+                        dict(label="Excel file", value="xlsx"),
+                        dict(label="CSV file", value="csv"),
+                    ],
+                    labelStyle={'display': 'inline-block'},
+                    value="xlsx"
+                ),
+                dcc.Download(id="download-data"),
                 html.Button(
-                    "Export data", id="button-stitch", className="button_submit"
+                    "Export data", id="btn-download", className="button_submit"
                     ),
                 html.Br(),
             ],
@@ -380,6 +390,7 @@ def update_NNLS(click):
 def parse_Jac(contents, filename, filter_on, filter_value, scale_on, scale_value):
     global df_Jac
     global NPsizes_frequency
+    global y_data
     print("DEBUG: parse_Jac being executed!")
     _, content_string = contents.split(",")
 
@@ -460,14 +471,22 @@ def update_Jac(contents, filter_on, filter_value, scale_on, scale_value, filenam
     return children
 
 
-# FILTER
+# EXPORT
 
-# @app.callback(
-#     Output("graph-PSD", "children"),
-#     [Input("input-filter", "value"),
-#     Input("checklist-filter", "value")]
-# )
-
+@app.callback(
+    Output("download-data", "data"),
+    Input("btn-download", "n_clicks"),
+    State("radio-download", "value")
+)
+def download_df(click, type):
+    global df_Jac
+    global y_data
+    df = pd.DataFrame(data=dict(x=df_Jac["Size"], y=y_data))
+    if click:
+        if type == "xlsx":
+            return dcc.send_data_frame(df.to_excel, "PSD_data.xlsx")
+        elif type == "csv":
+            return dcc.send_data_frame(df.to_csv, "PSD_data.csv")
 
 if __name__ == '__main__':
     app.run_server(debug=True, port=5050)
