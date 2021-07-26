@@ -297,7 +297,7 @@ def parse_AS(contents, filename):
 def update_AS(contents, filename):
     if contents:
         children = [
-            html.H2([f"Using \"{filename}\""], style={"color": "black"}),
+            html.H6([f"Using \"{filename}\""], style={"color": "black"}),
             parse_AS(contents, filename)
         ]
     else:
@@ -352,7 +352,7 @@ def parse_AD(contents, filename):
 def update_AD(contents, filename):
     if contents:
         children = [
-            html.H2([f"Using \"{filename}\""], style={"color": "black"}),
+            html.H6([f"Using \"{filename}\""], style={"color": "black"}),
             parse_AD(contents, filename)
         ]
     else:
@@ -389,12 +389,11 @@ def update_NNLS(click):
                 "xaxis": dict(title="Wavelength (nm)"),
                 "yaxis": dict(title="Absorbance")
             }
-        # layout = go.Layout(
-        #     title="NNLS",
-        #     xaxis=dict(title="Wavelength (nm)"),
-        #     yaxis=dict(title="Absorbance")
-        # )
         return dcc.Graph(figure={"data": traces, "layout": layout})
+    else:
+        return [html.H1("First upload Absorption Spectra and Database,"),
+                html.H1("then click EXECUTE NNLS"),
+        ]
 
 
 # PSD
@@ -410,11 +409,15 @@ def parse_Jac(contents, filename, filter_on, filter_value, scale_on, scale_value
     try:
         if filename.endswith(".csv"):
             df_Jac = pd.read_csv(
-                io.StringIO(decoded.decode("utf-8"))
+                io.StringIO(decoded.decode("utf-8")),
+                names=["Size", "J"],
+                header=0,  # It may drop the first row if it hasn't headers
             )
         elif filename.endswith(".xls") or filename.endswith(".xlsx"):
             df_Jac = pd.read_excel(
-                io.BytesIO(decoded)
+                io.BytesIO(decoded),
+                names=["Size", "J"],
+                header=0,  # It may drop the first row if it hasn't headers
             )
     except Exception as e:
         print(e)  # TODO: Log? with open append mode datetime now() and exception
@@ -428,7 +431,10 @@ def parse_Jac(contents, filename, filter_on, filter_value, scale_on, scale_value
                 y_data.iloc[i] = 0
             elif scale_on:
                 y_data.iloc[i] *= scale_value
-        # NO ESTOY CONSIDERANDO FILTER OFF SCALE ON
+    else:
+        if scale_on:
+            for i in df_Jac["Size"].index:
+                y_data.iloc[i] *= scale_value
     params, _ = curve_fit(lognormal, df_Jac["Size"], y_data)
     traces = [
         go.Bar(x=df_Jac["Size"], y=y_data, name="DdD"),
@@ -437,15 +443,15 @@ def parse_Jac(contents, filename, filter_on, filter_value, scale_on, scale_value
     mean = np.exp(np.log(params[0]) + 0.5*params[1]*params[1])
     dev = np.exp(np.log(params[0]) + 0.5*params[1]*params[1]) * np.sqrt(np.exp(params[1]*params[1]) - 1)
     annotation_mean = {
-        "x": 5,
-        "y": 0.8,
+        "x": 4/5*df_Jac["Size"].max(),
+        "y": 4/5*y_data.max(),
         "text": f"Mean = {mean:.2f} nm",
         "showarrow": False,
         "font": {"size": 25, "color": "black"}
     }
     annotation_dev = {
-        "x": 5,
-        "y": 0.7,
+        "x": 4/5*df_Jac["Size"].max(),
+        "y": 5/7*y_data.max(),
         "text": f"Deviation = {dev:.2f} nm",
         "showarrow": False,
         "font": {"size": 25, "color": "black"}
@@ -474,12 +480,20 @@ def parse_Jac(contents, filename, filter_on, filter_value, scale_on, scale_value
 def update_Jac(contents, filter_on, filter_value, scale_on, scale_value, filename):
     print("DEBUG: FILTER VALUE:", filter_value)
     if contents:
-        children = [
-            html.H2([f"Using \"{filename}\""], style={"color": "black"}),
-            parse_Jac(contents, filename, filter_on, filter_value, scale_on, scale_value)
-        ]
+        try:
+            children = [
+                html.H6([f"Using \"{filename}\""], style={"color": "black",}),
+                parse_Jac(contents, filename, filter_on, filter_value, scale_on, scale_value)
+            ]
+        except Exception as e:
+            print(e)
+            children = [html.H1("There was an error."),
+                        html.H1("Make sure your Jacobian file has headers")
+            ]
     else:
-        children = html.H1(["Please upload the Jacobian file"])
+        children = [html.H1(["Please upload the Jacobian file with"]),
+                    html.H1(["only two columns: Size and J value"])
+        ]
     return children
 
 
