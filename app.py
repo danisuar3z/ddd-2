@@ -151,13 +151,14 @@ app.layout = html.Div(
                         dict(label="CSV file", value="csv"),
                     ],
                     labelStyle={'display': 'inline-block'},
-                    value="xlsx"
+                    value="xlsx",
+                    style={"border": "2px red solid", "padding-top":"0px"}
                 ),
                 dcc.Download(id="download-data"),
                 html.Button(
                     "Export data", id="btn-download", className="button_submit"
                     ),
-                html.Br(),
+                # html.Br(),
             ],
             className="four columns instruction",
         ),
@@ -263,11 +264,15 @@ def parse_AS(contents, filename):
     try:
         if filename.endswith(".csv"):
             df_AS = pd.read_csv(
-                io.StringIO(decoded.decode("utf-8"))
+                io.StringIO(decoded.decode("utf-8")),
+                names=["Wavelength", "Absorbance"],
+                header=0  # Worst case it drops first row if it doesn't have headers
             )
         elif filename.endswith(".xls") or filename.endswith(".xlsx"):
             df_AS = pd.read_excel(
-                io.BytesIO(decoded)
+                io.BytesIO(decoded),
+                names=["Wavelength", "Absorbance"],
+                header=0  # Worst case it drops first row if it doesn't have headers
             )
     except Exception as e:
         print(e)  # TODO: Log? with open append mode datetime now() and exception
@@ -296,7 +301,9 @@ def update_AS(contents, filename):
             parse_AS(contents, filename)
         ]
     else:
-        children = html.H1(["Please upload the Absorption Spectra"])
+        children = [html.H1(["Please upload the Absorption Spectra with"]),
+                    html.H1(["only two columns: wavelength and absorbance"])
+        ]
     return children
 
 
@@ -347,7 +354,9 @@ def update_AD(contents, filename):
             parse_AD(contents, filename)
         ]
     else:
-        children = html.H1(["Please upload the Absorption Database"])
+        children = [html.H1(["Please upload the Absorption Database with"]),
+                    html.H1(["wavelength and the diameters in header"]),
+        ]
     return children
 
 
@@ -482,6 +491,7 @@ def download_df(click, type):
     global df_Jac
     global y_data
     df = pd.DataFrame(data=dict(x=df_Jac["Size"], y=y_data))
+    df.index.name = "id"
     if click:
         if type == "xlsx":
             return dcc.send_data_frame(df.to_excel, "PSD_data.xlsx")
@@ -490,4 +500,4 @@ def download_df(click, type):
 
 if __name__ == '__main__':
     app.run_server(debug=True, port=5050)
-    # app.run_server(debug=True, host="0.0.0.0")
+    # app.run_server(host="0.0.0.0")
