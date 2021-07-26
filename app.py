@@ -319,17 +319,19 @@ def parse_AD(contents, filename):
     try:
         if filename.endswith(".csv"):
             df_AD = pd.read_csv(
-                io.StringIO(decoded.decode("utf-8"))
+                io.StringIO(decoded.decode("utf-8")),
+                header=0
             )
-            df_AD.columns = ["Wavelength", *df_AD.columns[1:]]
+            
         elif filename.endswith(".xls") or filename.endswith(".xlsx"):
             df_AD = pd.read_excel(
-                io.BytesIO(decoded)
+                io.BytesIO(decoded),
+                header=0
             )
-            df_AD.columns = ["Wavelength", *df_AD.columns[1:]]
     except Exception as e:
         print(e)  # TODO: Log? with open append mode datetime now() and exception
         return html.H1(["There was an error processing this file"])
+    df_AD.columns = ["Wavelength", *df_AD.columns[1:]]
     return dcc.Graph(
         figure = {
             "data": [go.Scatter(x=df_AD.Wavelength, y=df_AD[col], mode="lines", name=col) for col in df_AD.columns[1:]],
@@ -356,6 +358,7 @@ def update_AD(contents, filename):
     else:
         children = [html.H1(["Please upload the Absorption Database with"]),
                     html.H1(["wavelength and the diameters in header"]),
+                    html.H1(["using dot separator"]),
         ]
     return children
 
@@ -370,15 +373,15 @@ def update_AD(contents, filename):
 def update_NNLS(click):
     global df_AD
     global df_AS
-    global df_PSD
+    global df_NNLS
     global NPsizes_frequency
     print("DEBUG: update_NNLS executed")
     if click:
-        df_PSD = df_AD[df_AD.columns[1:]]
-        NPsizes_frequency, _ = nnls(df_PSD, df_AS.Absorbance)
-        trace_fit = go.Scatter(x=df_AS.Wavelength, y=np.matmul(df_PSD, NPsizes_frequency),
+        df_NNLS = df_AD[df_AD.columns[1:]]
+        NPsizes_frequency, _ = nnls(df_NNLS, df_AS.Absorbance)
+        trace_fit = go.Scatter(x=df_AS.Wavelength, y=np.matmul(df_NNLS, NPsizes_frequency),
             mode="lines", name="Fit",)
-        traces_AD_NNLS = [go.Scatter(x=df_AD.Wavelength, y=df_AD[col]*NPsizes_frequency[df_PSD.columns.get_loc(col)], name=col) for col in df_PSD.columns]
+        traces_AD_NNLS = [go.Scatter(x=df_AD.Wavelength, y=df_AD[col]*NPsizes_frequency[df_NNLS.columns.get_loc(col)], name=col) for col in df_NNLS.columns]
         trace_AS = go.Scatter(x=df_AS.Wavelength, y=df_AS.Absorbance, mode="lines", name="Data")
         traces = [trace_AS, trace_fit, *traces_AD_NNLS]
         layout ={
