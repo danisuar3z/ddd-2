@@ -1,6 +1,7 @@
 import io
 import base64
 import pathlib
+from dash_core_components.RadioItems import RadioItems
 
 import numpy as np
 import pandas as pd
@@ -18,7 +19,7 @@ PATH = pathlib.Path(__file__).parent
 
 app = dash.Dash(__name__, meta_tags=[{"name": "viewport", "content": "width=device-width"}])
 # app = dash.Dash(__name__)
-app.config.suppress_callback_exceptions = True  # NOT WORKING
+app.config.suppress_callback_exceptions = True  # NOT WORKING?
 app.title = "DdD 2.0"
 
 
@@ -45,12 +46,12 @@ app.layout = html.Div(
                 html.Div(
                     [
                         html.Button(
-                            "COMO CITAR",
+                            "HOW TO CITE",
                             className="button_instruction",
                             id="learn-more-button",
                             ),
                         html.Button(
-                            "BOTON AL PEDO", className="demo_button", id="demo"
+                            "EXAMPLE DATA?", className="demo_button", id="demo"
                             ),
                         ],
                     className="mobile_buttons",
@@ -143,16 +144,25 @@ app.layout = html.Div(
                         )
                     ],
                     ),
-                html.Label("7- Export PSD data to .csv file"),
-                dcc.RadioItems(
-                    id="radio-download",
-                    options=[
-                        dict(label="Excel file", value="xlsx"),
-                        dict(label="CSV file", value="csv"),
-                    ],
-                    labelStyle={'display': 'inline-block'},
-                    value="xlsx",
-                    style={"border": "2px red solid", "padding-top":"0px"}
+                html.Label("7- Download PSD data to file"),
+                html.Div([
+                    # dcc.RadioItems(
+                    dcc.Dropdown(
+                        id="radio-download",
+                        options=[
+                            dict(label="Excel file", value="xlsx"),
+                            dict(label="CSV file", value="csv"),
+                        ],
+                        # labelStyle={'display': 'inline-block'},  # This was for RadioItems
+                        value="xlsx",
+                        # style={
+                        #     'display': 'block', "margin-left": "1.3vw", "padding-bottom": "1vh",
+                        #     # "border": "2px red solid", "padding-top":"0px",
+                        #     # "width": "80%", "font-family": ["Geneva", "Tahoma", "Verdana", "sans-serif"]
+                        # }
+                    ),
+                ], style={"width": "45%", "margin-left": "2.7vw", "padding-bottom": "1vh",
+                          "font-family": ["Geneva", "Tahoma", "Verdana", "sans-serif"]}
                 ),
                 dcc.Download(id="download-data"),
                 html.Button(
@@ -232,7 +242,7 @@ def learn_more(n_clicks):
             "Close",
         )
     n_clicks += 1
-    return (html.Div(), "COMO CITAR")
+    return (html.Div(), "HOW TO CITE")
 
 
 @app.callback(
@@ -516,5 +526,5 @@ def download_df(click, type):
             return dcc.send_data_frame(df.to_csv, "PSD_data.csv")
 
 if __name__ == '__main__':
-    app.run_server(debug=True, port=5050)
-    # app.run_server(host="0.0.0.0")
+    # app.run_server(debug=True, port=5050)
+    app.run_server(host="0.0.0.0")
