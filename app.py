@@ -41,7 +41,7 @@ app.layout = html.Div(
                 html.Img(
                     src=app.get_asset_url("ga_white.png"), className="ddd-logo"
                     ),
-                html.H1(children="Diameter distribution for SNPs"),
+                html.H1(children="Diameter distribution for SNPs", style=dict(color="var(--cremita")),
                 instructions(),
                 html.Div(
                     [
