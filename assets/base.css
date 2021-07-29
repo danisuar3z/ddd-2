@@ -238,7 +238,7 @@ input[type="button"] {
   padding: 0;
   color: white;
   text-align: center;
-  font-size: 11px;
+  font-size: 10px;
   font-family: "Geneva", "Tahoma", "Verdana", "sans-serif";
   font-weight: normal !important;
   letter-spacing: .1rem;
@@ -622,7 +622,7 @@ there.
     text-align: center;
     margin-left: 35px;
     border: 2px gray solid;
-    font-size: 20px;
+    font-size: 15px;
     margin-right: 35px;
     color: var(--cremita);
     border-style: dashed;
@@ -637,7 +637,7 @@ there.
     text-align: center;
     margin-left: 35px;
     border: 2px gray solid;
-    font-size: 20px;
+    font-size: 15px;
     margin-right: 35px;
     color: var(--cremita);
     border-style: dashed;
@@ -662,7 +662,7 @@ there.
     text-align: center;
     margin-left: 35px;
     border: 2px gray solid;
-    font-size: 20px;
+    font-size: 15px;
     margin-right: 35px;
     color: var(--cremita);
     border-style: dashed;
@@ -703,7 +703,7 @@ there.
     text-align: center;
     margin-left: 35px;
     border: 2px gray solid;
-    font-size: 20px;
+    font-size: 15px;
     margin-right: 35px;
     color: var(--cremita);
     border-style: dashed;
@@ -1110,7 +1110,7 @@ there.
     text-align: center;
     margin-left: 35px;
     border: 2px gray solid;
-    font-size: 20px;
+    font-size: 15px;
     margin-right: 35px;
     color: var(--cremita);
     border-style: dashed;
@@ -1132,7 +1132,7 @@ there.
     text-align: center;
     margin-left: 35px;
     border: 2px gray solid;
-    font-size: 20px;
+    font-size: 15px;
     margin-right: 35px;
     color: var(--cremita);
     border-style: dashed;
@@ -1148,7 +1148,7 @@ there.
     text-align: center;
     margin-left: 35px;
     border: 2px gray solid;
-    font-size: 20px;
+    font-size: 15px;
     margin-right: 35px;
     color: var(--cremita);
     border-style: dashed;

@@ -527,5 +527,5 @@ def download_df(click, type):
             return dcc.send_data_frame(df.to_csv, "PSD_data.csv")
 
 if __name__ == '__main__':
-    app.run_server(debug=True, port=5050)
-    # app.run_server(host="0.0.0.0", debug=True)
+    # app.run_server(debug=True, port=5050)
+    app.run_server(host="0.0.0.0", debug=True)
