@@ -28,9 +28,10 @@ def lognormal(x, mu, s):
 
 
 def instructions():
-    return html.P([
+    return html.A([
         """
-        DOI: 10.1039/c9na00344"""],
+        DOI: 10.1039/C9NA00344D"""], href="https://pubs.rsc.org/en/content/articlelanding/2019/na/c9na00344d",
+        # style={"margin-left": "2.4vw", "font-family": ["Geneva", "Tahoma", "Verdana", "sans-serif"]})
         className="instructions-sidebar")
 
 

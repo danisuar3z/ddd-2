@@ -148,8 +148,9 @@ body {
 }
 
 .instructions-sidebar {
-  margin-top: -20px;
-  margin-bottom: 20px
+  margin-top: -10px;
+  margin-bottom: 20px;
+  margin-left: 2.8vw;
 }
 
 
@@ -218,7 +219,7 @@ blockquote {
 /* Links
 –––––––––––––––––––––––––––––––––––––––––––––––––– */
 a {
-  color: var(--celestito); 
+  color: var(--gris_claro); 
   text-decoration: underline;
   cursor: pointer;}
 a:hover {
@@ -1124,7 +1125,7 @@ there.
 
   .instructions-sidebar {
     margin-top: -20px;
-    margin-bottom: 20px
+    margin-bottom: 20px;
   }
 
   .dcc_upload {
