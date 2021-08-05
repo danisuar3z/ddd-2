@@ -210,7 +210,7 @@ def render_content(tab):
     elif tab == "PSD-tab":
         return html.Div(id="graph-PSD")
     elif tab == "instructions-tab":
-        return [html.Img(id="bla", src=app.get_asset_url("demo.gif"), style={"width": 700})]
+        return [html.A(children=["Descargar"], href="https://google.com.ar"), html.Img(id="bla", src=app.get_asset_url("demo.gif"), style={"width": 700})]
 
 
 def demo_explanation():
@@ -527,5 +527,5 @@ def download_df(click, type):
             return dcc.send_data_frame(df.to_csv, "PSD_data.csv")
 
 if __name__ == '__main__':
-    # app.run_server(debug=True, port=5050)
-    app.run_server(host="0.0.0.0", debug=True)
+    app.run_server(debug=True, port=5050)
+    # app.run_server(host="0.0.0.0", debug=True)
