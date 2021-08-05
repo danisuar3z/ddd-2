@@ -11,6 +11,7 @@ import dash
 from dash_daq import BooleanSwitch
 import dash_html_components as html
 import dash_core_components as dcc
+import dash_bootstrap_components as dbc
 from dash.dependencies import Output, Input, State
 
 import plotly.graph_objects as go
@@ -116,10 +117,12 @@ app.layout = html.Div(
                     [
                         html.Hr(),
                         html.Label("5- Input treshold to filter (in nm)"),
-                        dcc.Input(
+                        dbc.Input(
                             id="input-filter", type="number",
                             value=None, min=0, max=10,
-                            step="any", placeholder="E.g. 2,4",
+                            step=0.05,
+                            # step="any",
+                            placeholder="E.g. 2,4",
                             style={"width": "10vw"}
                         ),
                         BooleanSwitch(
@@ -130,7 +133,7 @@ app.layout = html.Div(
                                    "vertical-align": "bottom"}
                         ),
                         html.Label("6- Input value to scale"),
-                        dcc.Input(
+                        dbc.Input(
                             id="input-scale", type="number",
                             value=None, min=0, max=1000,
                             step="any", placeholder="E.g. 30",
@@ -145,26 +148,26 @@ app.layout = html.Div(
                         )
                     ],
                     ),
-                html.Label("7- Download PSD data to file"),
-                html.Div([
-                    # dcc.RadioItems(
-                    dcc.Dropdown(
-                        id="radio-download",
-                        options=[
-                            dict(label="Excel file", value="xlsx"),
-                            dict(label="CSV file", value="csv"),
-                        ],
-                        # labelStyle={'display': 'inline-block'},  # This was for RadioItems
-                        value="xlsx",
-                        # style={
-                        #     'display': 'block', "margin-left": "1.3vw", "padding-bottom": "1vh",
-                        #     # "border": "2px red solid", "padding-top":"0px",
-                        #     # "width": "80%", "font-family": ["Geneva", "Tahoma", "Verdana", "sans-serif"]
-                        # }
-                    ),
-                ], style={"width": "45%", "margin-left": "2.7vw", "padding-bottom": "1vh",
-                          "font-family": ["Geneva", "Tahoma", "Verdana", "sans-serif"]}
-                ),
+                html.Label("7- Download PSD data to CSV file"),
+                # html.Div([
+                #     # dcc.RadioItems(
+                #     dcc.Dropdown(
+                #         id="radio-download",
+                #         options=[
+                #             dict(label="Excel file", value="xlsx"),
+                #             dict(label="CSV file", value="csv"),
+                #         ],
+                #         # labelStyle={'display': 'inline-block'},  # This was for RadioItems
+                #         value="xlsx",
+                #         # style={
+                #         #     'display': 'block', "margin-left": "1.3vw", "padding-bottom": "1vh",
+                #         #     # "border": "2px red solid", "padding-top":"0px",
+                #         #     # "width": "80%", "font-family": ["Geneva", "Tahoma", "Verdana", "sans-serif"]
+                #         # }
+                #     ),
+                # ], style={"width": "45%", "margin-left": "2.7vw", "padding-bottom": "1vh",
+                #           "font-family": ["Geneva", "Tahoma", "Verdana", "sans-serif"]}
+                # ),
                 dcc.Download(id="download-data"),
                 html.Button(
                     "Export data", id="btn-download", className="button_submit"
@@ -177,11 +180,11 @@ app.layout = html.Div(
             dcc.Tabs(id="stitching-tabs",
                      value="AS-tab",
                      children=[
+                         dcc.Tab(label="INSTRUCTIONS", value="instructions-tab"),
                          dcc.Tab(label="ABSORPTION SPECTRA", value="AS-tab"),
                          dcc.Tab(label="ABSORPTION DATABASE", value="AD-tab"),
                          dcc.Tab(label="FIT", value="NNLS-tab"),
                          dcc.Tab(label="PSD", value="PSD-tab"),
-                         dcc.Tab(label="INSTRUCTIONS", value="instructions-tab"),
                          ], className="tabs"
                      ),
             html.Div(
@@ -513,18 +516,20 @@ def update_Jac(contents, filter_on, filter_value, scale_on, scale_value, filenam
 @app.callback(
     Output("download-data", "data"),
     Input("btn-download", "n_clicks"),
-    State("radio-download", "value")
+    # State("radio-download", "value")
 )
-def download_df(click, type):
+def download_df(click):#, type):
     global df_Jac
     global y_data
-    df = pd.DataFrame(data=dict(x=df_Jac["Size"], y=y_data))
-    df.index.name = "id"
+    print(y_data)
+    df = pd.DataFrame(data=dict(freq=y_data.values), index=df_Jac["Size"])
+    df.index.name = "diameter"
+    print(df)
     if click:
-        if type == "xlsx":
-            return dcc.send_data_frame(df.to_excel, "PSD_data.xlsx")
-        elif type == "csv":
-            return dcc.send_data_frame(df.to_csv, "PSD_data.csv")
+        # if type == "xlsx":
+        #     return dcc.send_data_frame(df.to_excel, "PSD_data.xlsx")
+        # elif type == "csv":
+        return dcc.send_data_frame(df.to_csv, "PSD_data.csv")
 
 if __name__ == '__main__':
     app.run_server(debug=True, port=5050)

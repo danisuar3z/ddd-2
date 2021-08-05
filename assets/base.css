@@ -386,6 +386,10 @@ input[type="button"].button-primary:focus {
   background-color: white;
 }
 
+#stitching-tabs>div:nth-child(1)>span,
+#stitching-tabs>div:nth-child(2)>span,
+#stitching-tabs>div:nth-child(3)>span,
+#stitching-tabs>div:nth-child(4)>span,
 #stitching-tabs>div:nth-child(5)>span {
   font-size: 11px;
 }
