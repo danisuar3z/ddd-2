@@ -55,7 +55,7 @@ app.layout = html.Div(
                             id="learn-more-button",
                             ),
                         html.Button(
-                            "EXAMPLE DATA?", className="demo_button", id="demo"
+                            "EXAMPLE DATA?", className="demo_button", id="demo", style={"display": "none"}
                             ),
                         ],
                     className="mobile_buttons",
@@ -217,12 +217,15 @@ def render_content(tab):
     elif tab == "instructions-tab":
         return [
             dcc.Download(id="download-template"),
-            html.Button("Download templates", id="btn-template"),
-            html.Br(),
-            html.Button("Download sample data", id="btn-sample"),
+            # html.Br(),
+            html.Div([
+                html.Button("Download templates", id="btn-template"),
+                html.Button("Download sample data", id="btn-sample"),
+            ], style={"padding-top": "5px", "padding-bottom": "5px"}),
             dcc.Download(id="download-sample"),
-            html.Br(),
-            html.Img(id="demo-gif", src=app.get_asset_url("demo.gif"), style={"width": 700}),]
+            # html.Br(),
+            # html.Label("Demonstration"),
+            html.Img(id="demo-gif", src=app.get_asset_url("demo.gif"), style={"width": 550}),]
 
 
 def demo_explanation():
@@ -589,7 +592,17 @@ def download_df(click):
 def download_template(click):
     if click is None:
         raise PreventUpdate
-    return dcc.send_file(PATH / "template.csv")
+    return dcc.send_file(PATH / "data" / "templates.zip")
+
+
+@app.callback(
+    Output("download-sample", "data"),
+    Input("btn-sample", "n_clicks")
+)
+def download_sample(click):
+    if click is None:
+        raise PreventUpdate
+    return dcc.send_file(PATH / "data" / "sample_data.zip")
 
 
 if __name__ == '__main__':
