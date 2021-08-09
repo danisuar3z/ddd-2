@@ -170,7 +170,7 @@ app.layout = html.Div(
                 # ], style={"width": "45%", "margin-left": "2.7vw", "padding-bottom": "1vh",
                 #           "font-family": ["Geneva", "Tahoma", "Verdana", "sans-serif"]}
                 # ),
-                dcc.Download(id="download-data"),
+                dcc.Download(id="download-PSD"),
                 html.Button(
                     "Export data", id="btn-download", className="button_submit"
                     ),
@@ -216,9 +216,11 @@ def render_content(tab):
         return html.Div(id="graph-PSD")
     elif tab == "instructions-tab":
         return [
-            html.A(children=["Descargar templates"], href="https://google.com.ar"),
+            dcc.Download(id="download-template"),
+            html.Button("Download templates", id="btn-template"),
             html.Br(),
-            html.A(children=["Descargar ejemplos"], href="https://google.com.ar"),
+            html.Button("Download sample data", id="btn-sample"),
+            dcc.Download(id="download-sample"),
             html.Br(),
             html.Img(id="demo-gif", src=app.get_asset_url("demo.gif"), style={"width": 700}),]
 
@@ -559,7 +561,7 @@ def update_Jac(contents, filter_on, filter_value, scale_on, scale_value, filenam
 # EXPORT
 
 @app.callback(
-    Output("download-data", "data"),
+    Output("download-PSD", "data"),
     Input("btn-download", "n_clicks"),
     # State("radio-download", "value")
 )
@@ -578,6 +580,17 @@ def download_df(click):
         #     return dcc.send_data_frame(df.to_excel, "PSD_data.xlsx")
         # elif type == "csv":
         return dcc.send_data_frame(df.to_csv, "PSD_data.csv")
+
+
+@app.callback(
+    Output("download-template", "data"),
+    Input("btn-template", "n_clicks")
+)
+def download_template(click):
+    if click is None:
+        raise PreventUpdate
+    return dcc.send_file(PATH / "template.csv")
+
 
 if __name__ == '__main__':
     app.run_server(debug=True, port=5050)
