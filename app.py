@@ -1,7 +1,7 @@
 import io
 import base64
 import pathlib
-from dash_core_components.RadioItems import RadioItems
+# from dash_core_components.RadioItems import RadioItems
 
 import numpy as np
 import pandas as pd
@@ -13,6 +13,7 @@ import dash_html_components as html
 import dash_core_components as dcc
 import dash_bootstrap_components as dbc
 from dash.dependencies import Output, Input, State
+from dash.exceptions import PreventUpdate
 
 import plotly.graph_objects as go
 
@@ -22,7 +23,7 @@ app = dash.Dash(__name__, meta_tags=[{"name": "viewport", "content": "width=devi
 # app = dash.Dash(__name__)
 app.config.suppress_callback_exceptions = True  # NOT WORKING?
 app.title = "DdD 2.0"
-
+# FLAG = 0  # Determines the state of the app in the user instance
 
 def lognormal(x, mu, s):
     return (1/(x*s*np.sqrt(2*np.pi))) * (np.exp(-(((np.log(x/mu))**2)/(2*s**2))))
@@ -38,6 +39,7 @@ def instructions():
 
 app.layout = html.Div(
     children=[
+        dcc.Store(id="FLAG", storage_type="memory", data=0),
         html.Div(
             [
                 html.Img(
@@ -178,7 +180,7 @@ app.layout = html.Div(
         ),
         html.Div([
             dcc.Tabs(id="stitching-tabs",
-                     value="AS-tab",
+                     value="instructions-tab",
                      children=[
                          dcc.Tab(label="INSTRUCTIONS", value="instructions-tab"),
                          dcc.Tab(label="ABSORPTION SPECTRA", value="AS-tab"),
@@ -213,7 +215,12 @@ def render_content(tab):
     elif tab == "PSD-tab":
         return html.Div(id="graph-PSD")
     elif tab == "instructions-tab":
-        return [html.A(children=["Descargar"], href="https://google.com.ar"), html.Img(id="bla", src=app.get_asset_url("demo.gif"), style={"width": 700})]
+        return [
+            html.A(children=["Descargar templates"], href="https://google.com.ar"),
+            html.Br(),
+            html.A(children=["Descargar ejemplos"], href="https://google.com.ar"),
+            html.Br(),
+            html.Img(id="demo-gif", src=app.get_asset_url("demo.gif"), style={"width": 700}),]
 
 
 def demo_explanation():
@@ -249,13 +256,18 @@ def learn_more(n_clicks):
     return (html.Div(), "HOW TO CITE")
 
 
+# OLD CHANGE_FOCUS
+
 @app.callback(
     Output("stitching-tabs", "value"),
+    Input("upload-AS", "filename"),
     Input("execute-nnls", "n_clicks"),
     Input("upload-AD", "filename"),
-    Input("upload-Jac", "filename")
+    Input("upload-Jac", "filename"),
+    State("FLAG", "data")
 )
-def change_focus(click, filename_AD, filename_Jac):
+def change_focus(filename_AS, click, filename_AD, filename_Jac, FLAG):
+    print("DEBUG:", FLAG)
     # Return order is key to the correct behavior
     if filename_Jac:
         return "PSD-tab"
@@ -263,7 +275,32 @@ def change_focus(click, filename_AD, filename_Jac):
         return "NNLS-tab"
     elif filename_AD:
         return "AD-tab"
-    return "AS-tab"
+    elif filename_AS:
+        return "AS-tab"
+    return "instructions-tab"
+
+
+# NEW CHANGE_FOCUS
+
+# @app.callback(
+#     Output("stitching-tabs", "value"),
+#     Input("FLAG", "data"),
+#     # State("FLAG", "data")
+# )
+# def change_focus(FLAG):#, state):
+#     print("Changing focus:", FLAG)
+#     # return "instructions-tab"
+#     # if not FLAG:
+#     #     return "instructions-tab"
+#     if FLAG == 1:
+#         return "AS-tab"
+#     return "instructions-tab"
+#     # elif FLAG == 2:
+#     #     return "AD-tab"
+#     # elif FLAG == 3:
+#     #     return "NNLS-tab"
+#     # elif FLAG == 4:
+#     #     return "PSD-tab"
 
 
 # ABSORPTION SPECTRA
@@ -304,21 +341,28 @@ def parse_AS(contents, filename):
 
 
 @app.callback(
-    Output("graph-AS", "children"),
-    Input("upload-AS", "contents"),
-    State("upload-AS", "filename")
+    [Output("graph-AS", "children"),
+    Output("FLAG", "data")],
+    [Input("upload-AS", "contents"),
+    State("upload-AS", "filename")]
 )
 def update_AS(contents, filename):
-    if contents:
+    print("DEBUG: CORRIENDO update_AS")
+    if not contents:
+        raise PreventUpdate
+    elif contents:
         children = [
             html.H6([f"Using \"{filename}\""], style={"color": "black"}),
             parse_AS(contents, filename)
         ]
+        print("Debería estar cambiando el FLAG a 1")
+        FLAG = 1
     else:
         children = [html.H1(["Please upload the Absorption Spectra with"]),
                     html.H1(["only two columns: wavelength and absorbance"])
         ]
-    return children
+        FLAG = 0
+    return children, FLAG
 
 
 # ABSORPTION DATABASE
@@ -364,6 +408,7 @@ def parse_AD(contents, filename):
     State("upload-AD", "filename")
 )
 def update_AD(contents, filename):
+    print("DEBUG: CORRIENDO update_AD")
     if contents:
         children = [
             html.H6([f"Using \"{filename}\""], style={"color": "black"}),
@@ -518,13 +563,16 @@ def update_Jac(contents, filter_on, filter_value, scale_on, scale_value, filenam
     Input("btn-download", "n_clicks"),
     # State("radio-download", "value")
 )
-def download_df(click):#, type):
+def download_df(click):
+    if click is None:
+        raise PreventUpdate
+    print("DEBUG: CORRIENDO download_df")
     global df_Jac
     global y_data
-    print(y_data)
+    # print(y_data)
     df = pd.DataFrame(data=dict(freq=y_data.values), index=df_Jac["Size"])
     df.index.name = "diameter"
-    print(df)
+    # print(df)
     if click:
         # if type == "xlsx":
         #     return dcc.send_data_frame(df.to_excel, "PSD_data.xlsx")
