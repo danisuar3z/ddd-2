@@ -50,7 +50,7 @@ app.layout = html.Div(
                 html.Div(
                     [
                         html.Button(
-                            "HOW TO CITE",
+                            f"HOW TO CITE {chr(9660)}",
                             className="button_instruction",
                             id="learn-more-button",
                             ),
@@ -94,10 +94,11 @@ app.layout = html.Div(
                             ),
                         html.Div(
                             [
+                                # html.Label("3- Fit"),
                                 html.Button(
                                     id="execute-nnls",
                                     children="3- Execute NNLS"),
-                            ], style={"padding-top": 10, }
+                            ], className="btn-nnls"
                             ),
                         html.Div(
                             [
@@ -219,13 +220,13 @@ def render_content(tab):
             dcc.Download(id="download-template"),
             # html.Br(),
             html.Div([
-                html.Button("Download templates", id="btn-template"),
-                html.Button("Download sample data", id="btn-sample"),
-            ], style={"padding-top": "5px", "padding-bottom": "5px"}),
+                html.Button("Download templates", id="btn-template", style={"width": "155px", "background-color": "#2da135"}),
+                html.Button("Download sample data", id="btn-sample", style={"width": "170px", "background-color": "#2da135"}),
+            ], style={"padding-top": "15px", "padding-bottom": "15px"}),
             dcc.Download(id="download-sample"),
             # html.Br(),
             # html.Label("Demonstration"),
-            html.Img(id="demo-gif", src=app.get_asset_url("demo.gif"), style={"width": 550}),]
+            html.Img(id="demo-gif", src=app.get_asset_url("demo.gif"), style={"width": 700}),]
 
 
 def demo_explanation():
@@ -255,10 +256,10 @@ def learn_more(n_clicks):
                 style={"margin-bottom": "30px"},
                 children=[demo_explanation()],
             ),
-            "Close",
+            f"Close {chr(9650)}",
         )
     n_clicks += 1
-    return (html.Div(), "HOW TO CITE")
+    return (html.Div(), f"HOW TO CITE {chr(9660)}")
 
 
 # OLD CHANGE_FOCUS
@@ -357,7 +358,7 @@ def update_AS(contents, filename):
         raise PreventUpdate
     elif contents:
         children = [
-            html.H6([f"Using \"{filename}\""], style={"color": "black"}),
+            html.H6([f"Using \"{filename}\""]),
             parse_AS(contents, filename)
         ]
         print("Debería estar cambiando el FLAG a 1")
@@ -416,7 +417,7 @@ def update_AD(contents, filename):
     print("DEBUG: CORRIENDO update_AD")
     if contents:
         children = [
-            html.H6([f"Using \"{filename}\""], style={"color": "black"}),
+            html.H6([f"Using \"{filename}\""]),
             parse_AD(contents, filename)
         ]
     else:
@@ -546,7 +547,7 @@ def update_Jac(contents, filter_on, filter_value, scale_on, scale_value, filenam
     if contents:
         try:
             children = [
-                html.H6([f"Using \"{filename}\""], style={"color": "black",}),
+                html.H6([f"Using \"{filename}\""]),
                 parse_Jac(contents, filename, filter_on, filter_value, scale_on, scale_value)
             ]
         except Exception as e:
