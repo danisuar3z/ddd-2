@@ -13,7 +13,10 @@ colorama==0.4.4
 dash==1.20.0
     # via
     #   -r .\requirements.in
+    #   dash-bootstrap-components
     #   dash-daq
+dash-bootstrap-components==0.13.0
+    # via -r .\requirements.in
 dash-core-components==1.16.0
     # via dash
 dash-daq==0.5.0

@@ -182,6 +182,9 @@ app.layout = html.Div(
                     "Export data", id="btn-download", className="button_submit"
                     ),
                 # html.Br(),
+                html.Div(["Web by ", html.A("Daniel T. Suárez", href="https://github.com/danisuar3z")],
+                style={"margin-left": "10%", "font-family": ["Geneva", "Tahoma", "Verdana", "sans-serif"],
+                       "display": "none"})
             ],
             className="four columns instruction",
         ),
