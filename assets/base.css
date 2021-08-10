@@ -152,6 +152,13 @@ body {
   /*background-color: var(--gris_claro);*/
 }
 
+.exactas-logo {
+  width: 15%;
+  float: right;
+  margin-top: 35px;
+  margin-right: 11%;
+}
+
 .instructions-sidebar {
   margin-top: -10px;
   margin-bottom: 20px;

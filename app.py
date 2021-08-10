@@ -25,6 +25,7 @@ app.config.suppress_callback_exceptions = True  # NOT WORKING?
 app.title = "DdD 2.0"
 # FLAG = 0  # Determines the state of the app in the user instance
 
+
 def lognormal(x, mu, s):
     return (1/(x*s*np.sqrt(2*np.pi))) * (np.exp(-(((np.log(x/mu))**2)/(2*s**2))))
 
@@ -39,12 +40,17 @@ def instructions():
 
 app.layout = html.Div(
     children=[
-        dcc.Store(id="FLAG", storage_type="memory", data=0),
+        # dcc.Store(id="FLAG", storage_type="memory", data=0),
         html.Div(
             [
+                html.Div([
                 html.Img(
-                    src=app.get_asset_url("ga_white.png"), className="ddd-logo"
+                    src=app.get_asset_url("ddd.png"), className="ddd-logo"
                     ),
+                html.Img(
+                    src=app.get_asset_url("exactas_blanco.png"), className="exactas-logo",
+                    ),
+                ]),
                 html.H1(children="Diameter distribution for SNPs", style=dict(color="var(--cremita")),
                 instructions(),
                 html.Div(
@@ -226,7 +232,7 @@ def render_content(tab):
             dcc.Download(id="download-sample"),
             # html.Br(),
             # html.Label("Demonstration"),
-            html.Img(id="demo-gif", src=app.get_asset_url("demo.gif"), style={"width": 700}),]
+            html.Img(id="demo-gif", src=app.get_asset_url("demo.gif"), style={"width": "80%"}),]
 
 
 def demo_explanation():
@@ -270,10 +276,10 @@ def learn_more(n_clicks):
     Input("execute-nnls", "n_clicks"),
     Input("upload-AD", "filename"),
     Input("upload-Jac", "filename"),
-    State("FLAG", "data")
+    # State("FLAG", "data")
 )
-def change_focus(filename_AS, click, filename_AD, filename_Jac, FLAG):
-    print("DEBUG:", FLAG)
+def change_focus(filename_AS, click, filename_AD, filename_Jac):#, FLAG):
+    # print("DEBUG:", FLAG)
     # Return order is key to the correct behavior
     if filename_Jac:
         return "PSD-tab"
@@ -290,23 +296,23 @@ def change_focus(filename_AS, click, filename_AD, filename_Jac, FLAG):
 
 # @app.callback(
 #     Output("stitching-tabs", "value"),
-#     Input("FLAG", "data"),
-#     # State("FLAG", "data")
+#     Input("upload-AS", "filename"),
+#     Input("upload-AD", "filename"),
+#     Input("execute-nnls", "n_clicks"),
+#     Input("upload-Jac", "filename"),
 # )
-# def change_focus(FLAG):#, state):
+# def change_focus(fn_AS, fn_AD, click, fn_Jac):
+#     global FLAG
 #     print("Changing focus:", FLAG)
-#     # return "instructions-tab"
-#     # if not FLAG:
-#     #     return "instructions-tab"
 #     if FLAG == 1:
 #         return "AS-tab"
+#     elif FLAG == 2:
+#         return "AD-tab"
+#     elif FLAG == 3:
+#         return "NNLS-tab"
+#     elif FLAG == 4:
+#         return "PSD-tab"
 #     return "instructions-tab"
-#     # elif FLAG == 2:
-#     #     return "AD-tab"
-#     # elif FLAG == 3:
-#     #     return "NNLS-tab"
-#     # elif FLAG == 4:
-#     #     return "PSD-tab"
 
 
 # ABSORPTION SPECTRA
@@ -347,28 +353,28 @@ def parse_AS(contents, filename):
 
 
 @app.callback(
-    [Output("graph-AS", "children"),
-    Output("FLAG", "data")],
+    Output("graph-AS", "children"),
+    # Output("FLAG", "data")],
     [Input("upload-AS", "contents"),
     State("upload-AS", "filename")]
 )
 def update_AS(contents, filename):
+    # global FLAG
+    # print("Debería estar cambiando el FLAG a 1")
+    # FLAG = 1
     print("DEBUG: CORRIENDO update_AS")
-    if not contents:
-        raise PreventUpdate
-    elif contents:
+    # if not contents:
+    #     raise PreventUpdate
+    if contents:
         children = [
             html.H6([f"Using \"{filename}\""]),
             parse_AS(contents, filename)
         ]
-        print("Debería estar cambiando el FLAG a 1")
-        FLAG = 1
     else:
         children = [html.H1(["Please upload the Absorption Spectra with"]),
                     html.H1(["only two columns: wavelength and absorbance"])
         ]
-        FLAG = 0
-    return children, FLAG
+    return children
 
 
 # ABSORPTION DATABASE
@@ -433,15 +439,17 @@ def update_AD(contents, filename):
 
 @app.callback(
     Output("graph-NNLS", "children"),
-    [Input("execute-nnls", "n_clicks")]
+    Input("execute-nnls", "n_clicks"),
+    Input("upload-AS", "filename"),
+    Input("upload-AD", "filename")
 )
-def update_NNLS(click):
+def update_NNLS(click, fn_AS, fn_AD):
     global df_AD
     global df_AS
     global df_NNLS
     global NPsizes_frequency
     print("DEBUG: update_NNLS executed")
-    if click:
+    if click and fn_AS and fn_AD:  # Workaround al problema de los global
         df_NNLS = df_AD[df_AD.columns[1:]]
         NPsizes_frequency, _ = nnls(df_NNLS, df_AS.Absorbance)
         trace_fit = go.Scatter(x=df_AS.Wavelength, y=np.matmul(df_NNLS, NPsizes_frequency),
@@ -540,11 +548,13 @@ def parse_Jac(contents, filename, filter_on, filter_value, scale_on, scale_value
     Input("input-filter", "value"),
     Input("switch-scale", "on"),
     Input("input-scale", "value"),
+    Input("upload-AS", "filename"),
+    Input("upload-AD", "filename"),
     State("upload-Jac", "filename"),
 )
-def update_Jac(contents, filter_on, filter_value, scale_on, scale_value, filename):
+def update_Jac(contents, filter_on, filter_value, scale_on, scale_value, fn_AS, fn_AD, filename):
     print("DEBUG: FILTER VALUE:", filter_value)
-    if contents:
+    if contents and fn_AS and fn_AD:  # Workaround al problema de los global
         try:
             children = [
                 html.H6([f"Using \"{filename}\""]),
@@ -607,5 +617,5 @@ def download_sample(click):
 
 
 if __name__ == '__main__':
-    app.run_server(debug=True, port=5050)
+    app.run_server(port=5050, debug=True)
     # app.run_server(host="0.0.0.0", debug=True)
