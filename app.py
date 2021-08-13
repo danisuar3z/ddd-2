@@ -2,7 +2,7 @@ import io
 import base64
 import pathlib
 # from dash_core_components.RadioItems import RadioItems
-#probando
+# TEST-GLOBAL BRANCH
 import numpy as np
 import pandas as pd
 from scipy.optimize import nnls, curve_fit
@@ -40,7 +40,12 @@ def instructions():
 
 app.layout = html.Div(
     children=[
-        # dcc.Store(id="FLAG", storage_type="memory", data=0),
+        dcc.Store(id="store-AS", storage_type="memory"),
+        # dcc.Store(id="store-AD", storage_type="memory"),
+        # dcc.Store(id="store-NNLS", storage_type="memory"),
+        # dcc.Store(id="store-NPsizes_frequency", storage_type="memory"),
+        # dcc.Store(id="store-AS", storage_type="memory"),
+        # dcc.Store(id="store-AS", storage_type="memory"),
         html.Div(
             [
                 html.Div([
@@ -320,15 +325,40 @@ def change_focus(filename_AS, click, filename_AD, filename_Jac):#, FLAG):
 
 # ABSORPTION SPECTRA
 
+def plot_AS(df_AS, filename):
+    print(type(df_AS))
+    if type(df_AS) == str:
+        return html.H1(["There was an error processing this file"])
+    # else:
+    #     df_AS = pd.read_json(df_AS)
+    traces = [go.Scatter(x=df_AS.Wavelength, y=df_AS.Absorbance, mode="lines")]
+    layout = {
+        "title": "Absorption Spectra",
+        "xaxis": dict(title="Wavelength (nm)"),
+        "yaxis": dict(title="Absorbance")
+    }
+    return [
+        html.H6([f"Using \"{filename}\""]),
+        dcc.Graph(figure={"data": traces, "layout": layout})
+    ]
 
-def parse_AS(contents, filename):
-    print("DEBUG: parse_AS being executed!")
-    global df_AS
+
+@app.callback(
+    [Output("store-AS", "data"),
+    Output("graph-AS", "children")],
+    [Input("upload-AS", "contents"),
+    Input("upload-AS", "filename"),
+    State("store-AS", "data")]
+)
+def load_AS(contents, filename, data):
+    # if not filename:
+    #     return PreventUpdate
+    data = data or dict()
+    print("DEBUG: load_AS running")
     _, content_string = contents.split(",")
-
     decoded = base64.b64decode(content_string)
     try:
-        if filename.endswith(".csv"):
+        if filename.endswith("csv"):
             df_AS = pd.read_csv(
                 io.StringIO(decoded.decode("utf-8")),
                 names=["Wavelength", "Absorbance"],
@@ -341,43 +371,70 @@ def parse_AS(contents, filename):
                 header=0  # Worst case it drops first row if it doesn't have headers
             )
     except Exception as e:
-        print(e)  # TODO: Log? with open append mode datetime now() and exception
-        return html.H1(["There was an error processing this file"])
-    return dcc.Graph(
-        figure = {
-            "data": [go.Scatter(x=df_AS.Wavelength, y=df_AS.Absorbance, mode="lines")],
-            "layout": {
-                "title": "Absorption Spectra",
-                "xaxis": dict(title="Wavelength (nm)"),
-                "yaxis": dict(title="Absorbance")
-            }
-        }
-    )
+        print("ERORR IN LOAD_AS:", e)
+        df_AS = "ERROR"
+    data["df_AS"] = df_AS.to_json()
+    data["fn_AS"] = filename
+    return data, plot_AS(df_AS, filename)
 
 
-@app.callback(
-    Output("graph-AS", "children"),
-    # Output("FLAG", "data")],
-    [Input("upload-AS", "contents"),
-    State("upload-AS", "filename")]
-)
-def update_AS(contents, filename):
-    # global FLAG
-    # print("Debería estar cambiando el FLAG a 1")
-    # FLAG = 1
-    print("DEBUG: CORRIENDO update_AS")
-    # if not contents:
-    #     raise PreventUpdate
-    if contents:
-        children = [
-            html.H6([f"Using \"{filename}\""]),
-            parse_AS(contents, filename)
-        ]
-    else:
-        children = [html.H1(["Please upload the Absorption Spectra with"]),
-                    html.H1(["only two columns: wavelength and absorbance"])
-        ]
-    return children
+# def parse_AS(contents, filename):
+#     print("DEBUG: parse_AS being executed!")
+#     global df_AS
+#     _, content_string = contents.split(",")
+
+#     decoded = base64.b64decode(content_string)
+#     try:
+#         if filename.endswith(".csv"):
+#             df_AS = pd.read_csv(
+#                 io.StringIO(decoded.decode("utf-8")),
+#                 names=["Wavelength", "Absorbance"],
+#                 header=0  # Worst case it drops first row if it doesn't have headers
+#             )
+#         elif filename.endswith(".xls") or filename.endswith(".xlsx"):
+#             df_AS = pd.read_excel(
+#                 io.BytesIO(decoded),
+#                 names=["Wavelength", "Absorbance"],
+#                 header=0  # Worst case it drops first row if it doesn't have headers
+#             )
+#     except Exception as e:
+#         print(e)  # TODO: Log? with open append mode datetime now() and exception
+#         return html.H1(["There was an error processing this file"])
+#     return dcc.Graph(
+#         figure = {
+#             "data": [go.Scatter(x=df_AS.Wavelength, y=df_AS.Absorbance, mode="lines")],
+#             "layout": {
+#                 "title": "Absorption Spectra",
+#                 "xaxis": dict(title="Wavelength (nm)"),
+#                 "yaxis": dict(title="Absorbance")
+#             }
+#         }
+#     )
+
+
+# @app.callback(
+#     Output("graph-AS", "children"),
+#     # Output("FLAG", "data")],
+#     [Input("upload-AS", "contents"),
+#     State("upload-AS", "filename")]
+# )
+# def update_AS(contents, filename):
+#     # global FLAG
+#     # print("Debería estar cambiando el FLAG a 1")
+#     # FLAG = 1
+#     print("DEBUG: CORRIENDO update_AS")
+#     # if not contents:
+#     #     raise PreventUpdate
+#     if contents:
+#         children = [
+#             html.H6([f"Using \"{filename}\""]),
+#             parse_AS(contents, filename)
+#         ]
+#     else:
+#         children = [html.H1(["Please upload the Absorption Spectra with"]),
+#                     html.H1(["only two columns: wavelength and absorbance"])
+#         ]
+#     return children
 
 
 # ABSORPTION DATABASE
