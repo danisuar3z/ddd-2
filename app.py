@@ -61,7 +61,7 @@ app.layout = html.Div(
                             id="learn-more-button",
                             ),
                         html.Button(
-                            "EXAMPLE DATA?", className="demo_button", id="demo", style={"display": "none"}
+                            "EXAMPLE DATA?", className="demo_button", id="demo", #style={"display": "none"}
                             ),
                         ],
                     className="mobile_buttons",
