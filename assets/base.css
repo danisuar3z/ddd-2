@@ -148,15 +148,25 @@ body {
 .ddd-logo {
   width: 10%;
   margin-left: 9%;
-  margin-top: 40px;
+  margin-top: 10%;
   /*background-color: var(--gris_claro);*/
 }
 
 .exactas-logo {
   width: 15%;
   float: right;
-  margin-top: 35px;
+  margin-top: 10%;
   margin-right: 11%;
+}
+
+.conicet-logo {
+  width: 15%;
+  /* margin-top: 35px; */
+  margin-left: 20%;
+}
+
+.demo-gif {
+  width: 80%;
 }
 
 .instructions-sidebar {
@@ -410,10 +420,6 @@ input[type="button"].button-primary:focus {
 }
 
 #stitching-result {
-  width: 65vw;
-}
-
-#demo-gif {
   width: 65vw;
 }
 

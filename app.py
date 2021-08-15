@@ -40,12 +40,14 @@ def instructions():
 
 app.layout = html.Div(
     children=[
-        # dcc.Store(id="FLAG", storage_type="memory", data=0),
         html.Div(
             [
                 html.Div([
                 html.Img(
                     src=app.get_asset_url("ddd.png"), className="ddd-logo"
+                    ),
+                html.Img(
+                    src=app.get_asset_url("conicet.png"), className="conicet-logo",
                     ),
                 html.Img(
                     src=app.get_asset_url("exactas_blanco.png"), className="exactas-logo",
@@ -227,15 +229,13 @@ def render_content(tab):
     elif tab == "instructions-tab":
         return [
             dcc.Download(id="download-template"),
-            # html.Br(),
             html.Div([
                 html.Button("Download templates", id="btn-template", style={"width": "155px", "background-color": "#2da135"}),
                 html.Button("Download sample data", id="btn-sample", style={"width": "170px", "background-color": "#2da135"}),
             ], style={"padding-top": "15px", "padding-bottom": "15px"}),
             dcc.Download(id="download-sample"),
-            # html.Br(),
-            # html.Label("Demonstration"),
-            html.Img(id="demo-gif", src=app.get_asset_url("demo.gif"), style={"width": "80%"}),]
+            html.Img(id="demo-gif", src=app.get_asset_url("demo.gif"), className="demo-gif"),
+        ]
 
 
 def demo_explanation():
