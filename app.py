@@ -47,7 +47,7 @@ app.layout = html.Div(
                     src=app.get_asset_url("ddd.png"), className="ddd-logo"
                     ),
                 html.Img(
-                    src=app.get_asset_url("conicet.png"), className="conicet-logo",
+                    src=app.get_asset_url("conicet_blanco.png"), className="conicet-logo",
                     ),
                 html.Img(
                     src=app.get_asset_url("exactas_blanco.png"), className="exactas-logo",
@@ -63,15 +63,18 @@ app.layout = html.Div(
                             id="learn-more-button",
                             ),
                         html.Button(
-                            "EXAMPLE DATA?", className="demo_button", id="demo", #style={"display": "none"}
+                            f"ABOUT DdD {chr(9660)}",
+                            className="about-ddd",
+                            id="btn-about",
                             ),
                         ],
                     className="mobile_buttons",
                     ),
-                html.Div(
+                html.Div([
                     # Empty child function for the callback
-                    html.Div(id="demo-explanation", children=[])
-                    ),
+                    html.Div(id="demo-explanation", children=[]),
+                    html.Div(id="div-about", children=[])
+                ]),
                 html.Div(
                     [
                         html.Div(
@@ -160,25 +163,6 @@ app.layout = html.Div(
                     ],
                     ),
                 html.Label("7- Download PSD data to CSV file"),
-                # html.Div([
-                #     # dcc.RadioItems(
-                #     dcc.Dropdown(
-                #         id="radio-download",
-                #         options=[
-                #             dict(label="Excel file", value="xlsx"),
-                #             dict(label="CSV file", value="csv"),
-                #         ],
-                #         # labelStyle={'display': 'inline-block'},  # This was for RadioItems
-                #         value="xlsx",
-                #         # style={
-                #         #     'display': 'block', "margin-left": "1.3vw", "padding-bottom": "1vh",
-                #         #     # "border": "2px red solid", "padding-top":"0px",
-                #         #     # "width": "80%", "font-family": ["Geneva", "Tahoma", "Verdana", "sans-serif"]
-                #         # }
-                #     ),
-                # ], style={"width": "45%", "margin-left": "2.7vw", "padding-bottom": "1vh",
-                #           "font-family": ["Geneva", "Tahoma", "Verdana", "sans-serif"]}
-                # ),
                 dcc.Download(id="download-PSD"),
                 html.Button(
                     "Export data", id="btn-download", className="button_submit"
@@ -269,6 +253,28 @@ def learn_more(n_clicks):
         )
     n_clicks += 1
     return (html.Div(), f"HOW TO CITE {chr(9660)}")
+
+
+@app.callback(
+    [Output("div-about", "children"),
+    Output("btn-about", "children")],
+    [Input("btn-about", "n_clicks")],
+)
+def learn_more(n_clicks):
+    if n_clicks is None:
+        n_clicks = 0
+    if (n_clicks % 2) == 1:
+        n_clicks += 1
+        return (
+            html.Div(
+                className="demo_container",
+                style={"margin-bottom": "30px"},
+                children=[demo_explanation()],
+            ),
+            f"Close {chr(9650)}",
+        )
+    n_clicks += 1
+    return (html.Div(), f"ABOUT DdD {chr(9660)}")
 
 
 # OLD CHANGE_FOCUS
