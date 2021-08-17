@@ -222,9 +222,9 @@ def render_content(tab):
         ]
 
 
-def demo_explanation():
+def demo_explanation(name):
     # Markdown files
-    with open(PATH.joinpath("demo.md"), "r") as file:
+    with open(PATH.joinpath(name), "r") as file:
         demo_md = file.read()
 
     return html.Div(
@@ -247,7 +247,7 @@ def learn_more(n_clicks):
             html.Div(
                 className="demo_container",
                 style={"margin-bottom": "30px"},
-                children=[demo_explanation()],
+                children=[demo_explanation("demo.md")],
             ),
             f"Close {chr(9650)}",
         )
@@ -269,7 +269,7 @@ def learn_more(n_clicks):
             html.Div(
                 className="demo_container",
                 style={"margin-bottom": "30px"},
-                children=[demo_explanation()],
+                children=[demo_explanation("about.md")],
             ),
             f"Close {chr(9650)}",
         )
