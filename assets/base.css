@@ -256,19 +256,19 @@ a:hover {
 }
 
 
-/* Buttons
+/* Buttons EXECUTE NNLS
 –––––––––––––––––––––––––––––––––––––––––––––––––– */
 button,
 input[type="submit"],
 input[type="reset"],
 input[type="button"] {
   margin-left: 9%;
-  height: 38px;
-  width: 140px;
+  height: 34px;
+  width: 130px;
   padding: 0;
   color: white;
   text-align: center;
-  font-size: 10px;
+  font-size: 11px;
   font-family: "Geneva", "Tahoma", "Verdana", "sans-serif";
   font-weight: normal !important;
   letter-spacing: .1rem;
@@ -282,7 +282,7 @@ input[type="button"] {
   border: transparent;
 }
 
-
+/* HOW TO CITE BUTTON */
 .button_instruction,
 input[type="submit"],
 input[type="reset"],
@@ -330,7 +330,7 @@ input[type="button"] {
   border: transparent !important;
 }
 
-
+/* EXPORT DATA BUTTON */
 .button_submit {
   margin-left: 9%;
   height: 38px;
@@ -1093,81 +1093,21 @@ there.
     width: 100vw;
   }
 
-  /*Zoom In svg*/
-  #tabs-content-example>div>button:nth-child(2)>svg {
-    height: 20px;
-    padding: 0 6px;
-    margin-top: 4px;
-  }
-
-  /*Zoom out svg */
-  #tabs-content-example>div>button:nth-child(3)>svg {
-    height: 20px;
-    padding: 0 6px;
-    margin-top: 4px;
-  }
-
-  /* Trace svg */
-  #tabs-content-example>div>button:nth-child(4)>svg {
-    height: 20px;
-    margin-top: 4px;
-  }
-
-  /* Square svg */
-  #tabs-content-example>div>button:nth-child(5)>svg {
-    margin-top: 2px;
-    margin-left: 0.5px;
-  }
-
-  /* Left arrow svg */
-  #tabs-content-example>div>button:nth-child(7)>svg {
-    margin-top: 2px;
-  }
-
-  /* Tag svg */
-  #tabs-content-example>div>button:nth-child(8)>svg {
-    margin-top: 4px;
-  }
-
-  #tabs-content-example>div>button:nth-child(2),
+  /* #tabs-content-example>div>button:nth-child(2),
   #tabs-content-example>div>button:nth-child(3),
   #tabs-content-example>div>button:nth-child(4),
   #tabs-content-example>div>button:nth-child(5),
   #tabs-content-example>div>button:nth-child(6),
   #tabs-content-example>div>button:nth-child(7),
   #tabs-content-example>div>button:nth-child(8) {
-    height: 30px !important;
+    height: 300px !important;
     width: 30px !important;
-  }
+  } */
 
-  /*Estimate Translation Button*/
-  #tabs-content-example>div>button:nth-child(9) {
-    height: 40px !important;
-    width: 170px;
-    padding: 0;
-    color: #FBFFFF !important;
-    text-align: center;
-    font-size: 11px;
-    font-family: "Geneva", "Tahoma", "Verdana", "sans-serif";
-    font-weight: 200;
-    line-height: 38px;
-    letter-spacing: .1rem;
-    text-transform: uppercase;
-    text-decoration: none;
-    white-space: nowrap;
-    background-color: #4181FF;
-    border-radius: 2px;
-    border: 1px solid;
-    cursor: pointer;
-    box-sizing: border-box;
-    margin-left: 0;
-    margin-bottom: 10px;
-  }
-
-  #bla {
+  /* #bla {
     width: 100vw !important;
     margin: 0 auto;
-  }
+  } */
 
   .dcc_upload {
     text-align: center;
