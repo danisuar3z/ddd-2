@@ -195,13 +195,15 @@ h4 { font-size: 2.6rem; line-height: 1.35; letter-spacing: -.08rem; margin-botto
 h5 { font-size: 2.2rem; line-height: 1.5;  letter-spacing: -.05rem; margin-bottom: 0.6rem; margin-top: 0.6rem;}
 h6 { font-size: 1.5rem; line-height: 1.6;  letter-spacing: 0; margin-bottom: 0.75rem; margin-top: 1.5rem; margin-left: 2%; color: black;}
 
+/* This is used in markdown paragraphs */
 p {
   margin-top: 0;
   font-family: "Geneva", "Tahoma", "Verdana", "sans-serif";
   white-space: pre-line;
   color: var(--cremita);
   overflow-wrap: normal;
-  font-size: 1.2rem;
+  /* font-size: 1.2rem; */
+  font-size: 12px;
   margin-left: 9%;
 }
 

@@ -363,17 +363,11 @@ def parse_AS(contents, filename):
 
 @app.callback(
     Output("graph-AS", "children"),
-    # Output("FLAG", "data")],
     [Input("upload-AS", "contents"),
     State("upload-AS", "filename")]
 )
 def update_AS(contents, filename):
-    # global FLAG
-    # print("Debería estar cambiando el FLAG a 1")
-    # FLAG = 1
     print("DEBUG: CORRIENDO update_AS")
-    # if not contents:
-    #     raise PreventUpdate
     if contents:
         children = [
             html.H6([f"Using \"{filename}\""]),
@@ -381,7 +375,7 @@ def update_AS(contents, filename):
         ]
     else:
         children = [html.H1(["Please upload the Absorption Spectra with"]),
-                    html.H1(["only two columns: wavelength and absorbance"])
+                    html.H1(["the specified format first"])
         ]
     return children
 
@@ -437,8 +431,7 @@ def update_AD(contents, filename):
         ]
     else:
         children = [html.H1(["Please upload the Absorption Database with"]),
-                    html.H1(["wavelength and the diameters in header"]),
-                    html.H1(["using dot separator"]),
+                    html.H1(["the specified format first"]),
         ]
     return children
 
@@ -458,7 +451,7 @@ def update_NNLS(click, fn_AS, fn_AD):
     global df_NNLS
     global NPsizes_frequency
     print("DEBUG: update_NNLS executed")
-    if click and fn_AS and fn_AD:  # Workaround al problema de los global
+    if click and fn_AS and fn_AD:  # Workaround to the global vars problem
         df_NNLS = df_AD[df_AD.columns[1:]]
         NPsizes_frequency, _ = nnls(df_NNLS, df_AS.Absorbance)
         trace_fit = go.Scatter(x=df_AS.Wavelength, y=np.matmul(df_NNLS, NPsizes_frequency),
@@ -511,29 +504,34 @@ def parse_Jac(contents, filename, filter_on, filter_value, scale_on, scale_value
         for i in df_Jac["Size"].index:
             if df_Jac["Size"].iloc[i] < filter_value:
                 y_data.iloc[i] = 0
-            elif scale_on:
-                y_data.iloc[i] *= scale_value
-    else:
-        if scale_on:
-            for i in df_Jac["Size"].index:
-                y_data.iloc[i] *= scale_value
+            # elif scale_on:
+            #     y_data.iloc[i] *= scale_value
+    # else:
+    #     if scale_on:
+    #         for i in df_Jac["Size"].index:
+    #             y_data.iloc[i] *= scale_value
     params, _ = curve_fit(lognormal, df_Jac["Size"], y_data)
+    if scale_on:
+        y_data *= scale_value
+        y_fit = lognormal(fit_x_values, params[0], params[1]) * scale_value
+    else:
+        y_fit = lognormal(fit_x_values, params[0], params[1])
     traces = [
         go.Bar(x=df_Jac["Size"], y=y_data, name="DdD"),
-        go.Scatter(x=fit_x_values, y=lognormal(fit_x_values, params[0], params[1]), name="Lognormal fit")
+        go.Scatter(x=fit_x_values, y=y_fit, name="Lognormal fit")
     ]
     mean = np.exp(np.log(params[0]) + 0.5*params[1]*params[1])
     dev = np.exp(np.log(params[0]) + 0.5*params[1]*params[1]) * np.sqrt(np.exp(params[1]*params[1]) - 1)
     annotation_mean = {
         "x": 4/5*df_Jac["Size"].max(),
-        "y": 4/5*y_data.max(),
+        "y": 4.1/5*y_data.max(),
         "text": f"Mean = {mean:.2f} nm",
         "showarrow": False,
         "font": {"size": 25, "color": "black"}
     }
     annotation_dev = {
         "x": 4/5*df_Jac["Size"].max(),
-        "y": 5/7*y_data.max(),
+        "y": 4.9/7*y_data.max(),
         "text": f"Deviation = {dev:.2f} nm",
         "showarrow": False,
         "font": {"size": 25, "color": "black"}
@@ -563,7 +561,7 @@ def parse_Jac(contents, filename, filter_on, filter_value, scale_on, scale_value
 )
 def update_Jac(contents, filter_on, filter_value, scale_on, scale_value, fn_AS, fn_AD, filename):
     print("DEBUG: FILTER VALUE:", filter_value)
-    if contents and fn_AS and fn_AD:  # Workaround al problema de los global
+    if contents and fn_AS and fn_AD:  # Workaround to the global vars problem
         try:
             children = [
                 html.H6([f"Using \"{filename}\""]),
@@ -576,7 +574,7 @@ def update_Jac(contents, filter_on, filter_value, scale_on, scale_value, fn_AS, 
             ]
     else:
         children = [html.H1(["Please upload the Jacobian file with"]),
-                    html.H1(["only two columns: Size and J value"])
+                    html.H1(["the specified format first"])
         ]
     return children
 
@@ -586,7 +584,6 @@ def update_Jac(contents, filter_on, filter_value, scale_on, scale_value, fn_AS, 
 @app.callback(
     Output("download-PSD", "data"),
     Input("btn-download", "n_clicks"),
-    # State("radio-download", "value")
 )
 def download_df(click):
     if click is None:
@@ -594,10 +591,8 @@ def download_df(click):
     print("DEBUG: CORRIENDO download_df")
     global df_Jac
     global y_data
-    # print(y_data)
     df = pd.DataFrame(data=dict(freq=y_data.values), index=df_Jac["Size"])
     df.index.name = "diameter"
-    # print(df)
     if click:
         # if type == "xlsx":
         #     return dcc.send_data_frame(df.to_excel, "PSD_data.xlsx")
@@ -610,9 +605,12 @@ def download_df(click):
     Input("btn-template", "n_clicks")
 )
 def download_template(click):
-    if click is None:
-        raise PreventUpdate
-    return dcc.send_file(PATH / "data" / "templates.zip")
+    """
+    Sends the templates.zip file to the Download component
+    when the respective button is clicked
+    """
+    if click:
+        return dcc.send_file(PATH / "data" / "templates.zip")
 
 
 @app.callback(
@@ -620,6 +618,10 @@ def download_template(click):
     Input("btn-sample", "n_clicks")
 )
 def download_sample(click):
+    """
+    Sends the sample_data.zip file to the Download component
+    when the respective button is clicked
+    """
     if click is None:
         raise PreventUpdate
     return dcc.send_file(PATH / "data" / "sample_data.zip")
