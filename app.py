@@ -1,36 +1,45 @@
+# Utility imports
 import io
 import base64
 import pathlib
-# from dash_core_components.RadioItems import RadioItems
 
+# Science imports
 import numpy as np
 import pandas as pd
 from scipy.optimize import nnls, curve_fit
+import plotly.graph_objects as go
 
+# Web imports
 import dash
-from dash_daq import BooleanSwitch
 import dash_html_components as html
 import dash_core_components as dcc
 import dash_bootstrap_components as dbc
+from dash_daq import BooleanSwitch
 from dash.dependencies import Output, Input, State
 from dash.exceptions import PreventUpdate
-
-import plotly.graph_objects as go
 
 PATH = pathlib.Path(__file__).parent
 
 app = dash.Dash(__name__, meta_tags=[{"name": "viewport", "content": "width=device-width"}])
-# app = dash.Dash(__name__)
-app.config.suppress_callback_exceptions = True  # NOT WORKING?
+
+# To avoid "ID not found in layout" errors due to nested callbacks
+app.config.suppress_callback_exceptions = True
+
+# Browser tab name
 app.title = "DdD 2.0"
-# FLAG = 0  # Determines the state of the app in the user instance
 
 
 def lognormal(x, mu, s):
+    """
+    Standard lognormal function to fit distribution data
+    """
     return (1/(x*s*np.sqrt(2*np.pi))) * (np.exp(-(((np.log(x/mu))**2)/(2*s**2))))
 
 
 def instructions():
+    """
+    Esto creo que vuela...
+    """
     return html.A([
         """
         DOI: 10.1039/C9NA00344D"""], href="https://pubs.rsc.org/en/content/articlelanding/2019/na/c9na00344d",
@@ -202,6 +211,10 @@ app.layout = html.Div(
     Input("stitching-tabs", "value")
 )
 def render_content(tab):
+    """
+    Renders tab content when value of dcc.Tabs changes by click
+    or change_focus function.
+    """
     if tab == "AS-tab":
         return html.Div(id="graph-AS")
     elif tab == "AD-tab":
@@ -223,7 +236,9 @@ def render_content(tab):
 
 
 def demo_explanation(name):
-    # Markdown files
+    """
+    Loads markdown file and returns it in a Div.
+    """
     with open(PATH.joinpath(name), "r") as file:
         demo_md = file.read()
 
@@ -239,6 +254,10 @@ def demo_explanation(name):
     [Input("learn-more-button", "n_clicks")],
 )
 def learn_more(n_clicks):
+    """
+    Simulates collapsable component adding the markdown text from
+    demo_explanation.
+    """
     if n_clicks is None:
         n_clicks = 0
     if (n_clicks % 2) == 1:
@@ -260,7 +279,11 @@ def learn_more(n_clicks):
     Output("btn-about", "children")],
     [Input("btn-about", "n_clicks")],
 )
-def learn_more(n_clicks):
+def about(n_clicks):
+    """
+    Simulates collapsable component adding the markdown text from
+    demo_explanation.
+    """
     if n_clicks is None:
         n_clicks = 0
     if (n_clicks % 2) == 1:
@@ -277,7 +300,7 @@ def learn_more(n_clicks):
     return (html.Div(), f"ABOUT DdD {chr(9660)}")
 
 
-# OLD CHANGE_FOCUS
+# CHANGE_FOCUS
 
 @app.callback(
     Output("stitching-tabs", "value"),
@@ -285,10 +308,12 @@ def learn_more(n_clicks):
     Input("execute-nnls", "n_clicks"),
     Input("upload-AD", "filename"),
     Input("upload-Jac", "filename"),
-    # State("FLAG", "data")
 )
-def change_focus(filename_AS, click, filename_AD, filename_Jac):#, FLAG):
-    # print("DEBUG:", FLAG)
+def change_focus(filename_AS, click, filename_AD, filename_Jac):
+    """
+    Brings focus to the needed tab given the user inputs (file uploads,
+    button presses).
+    """
     # Return order is key to the correct behavior
     if filename_Jac:
         return "PSD-tab"
@@ -301,33 +326,15 @@ def change_focus(filename_AS, click, filename_AD, filename_Jac):#, FLAG):
     return "instructions-tab"
 
 
-# NEW CHANGE_FOCUS
-
-# @app.callback(
-#     Output("stitching-tabs", "value"),
-#     Input("upload-AS", "filename"),
-#     Input("upload-AD", "filename"),
-#     Input("execute-nnls", "n_clicks"),
-#     Input("upload-Jac", "filename"),
-# )
-# def change_focus(fn_AS, fn_AD, click, fn_Jac):
-#     global FLAG
-#     print("Changing focus:", FLAG)
-#     if FLAG == 1:
-#         return "AS-tab"
-#     elif FLAG == 2:
-#         return "AD-tab"
-#     elif FLAG == 3:
-#         return "NNLS-tab"
-#     elif FLAG == 4:
-#         return "PSD-tab"
-#     return "instructions-tab"
-
-
 # ABSORPTION SPECTRA
 
 
 def parse_AS(contents, filename):
+    """
+    Reads file uploaded from the user and parses it into a pandas
+    DataFrame, then uses it to graph the absorption spectrum.
+    Returns dcc.Graph with figure in it.
+    """
     print("DEBUG: parse_AS being executed!")
     global df_AS
     _, content_string = contents.split(",")
@@ -367,6 +374,10 @@ def parse_AS(contents, filename):
     State("upload-AS", "filename")]
 )
 def update_AS(contents, filename):
+    """
+    Called when the user uploads absorption file and calls parse_AS
+    to make and put the graph in the respective graph div.
+    """
     print("DEBUG: CORRIENDO update_AS")
     if contents:
         children = [
@@ -384,6 +395,11 @@ def update_AS(contents, filename):
 
 
 def parse_AD(contents, filename):
+    """
+    Reads file uploaded from the user and parses it into a pandas
+    DataFrame, then uses it to graph the database spectra.
+    Returns dcc.Graph with figure in it.
+    """
     print("DEBUG: parse_AD being executed!")
     global df_AD
     _, content_string = contents.split(",")
@@ -423,6 +439,10 @@ def parse_AD(contents, filename):
     State("upload-AD", "filename")
 )
 def update_AD(contents, filename):
+    """
+    Called when the user uploads database file and calls parse_AD
+    to make and put the graph in the respective graph div.
+    """
     print("DEBUG: CORRIENDO update_AD")
     if contents:
         children = [
@@ -446,6 +466,10 @@ def update_AD(contents, filename):
     Input("upload-AD", "filename")
 )
 def update_NNLS(click, fn_AS, fn_AD):
+    """
+    Fits the data with non-negative least squares method
+    and generates graph to return in the respective div.
+    """
     global df_AD
     global df_AS
     global df_NNLS
@@ -474,6 +498,11 @@ def update_NNLS(click, fn_AS, fn_AD):
 # PSD
 
 def parse_Jac(contents, filename, filter_on, filter_value, scale_on, scale_value):
+    """
+    Reads file uploaded from the user and parses it into a pandas
+    DataFrame, then uses it to graph the PSD.
+    Returns dcc.Graph with figure in it.
+    """
     global df_Jac
     global NPsizes_frequency
     global y_data
@@ -560,6 +589,10 @@ def parse_Jac(contents, filename, filter_on, filter_value, scale_on, scale_value
     State("upload-Jac", "filename"),
 )
 def update_Jac(contents, filter_on, filter_value, scale_on, scale_value, fn_AS, fn_AD, filename):
+    """
+    Called when the user uploads jacobian file and calls parse_Jac
+    to make and put the graph in the respective graph div.
+    """
     print("DEBUG: FILTER VALUE:", filter_value)
     if contents and fn_AS and fn_AD:  # Workaround to the global vars problem
         try:
@@ -586,6 +619,10 @@ def update_Jac(contents, filter_on, filter_value, scale_on, scale_value, fn_AS, 
     Input("btn-download", "n_clicks"),
 )
 def download_df(click):
+    """
+    Sends the PSD data to a Download component when
+    export button is clicked.
+    """
     if click is None:
         raise PreventUpdate
     print("DEBUG: CORRIENDO download_df")
