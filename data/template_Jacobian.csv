@@ -1,1 +1,8 @@
 Size,J
+---------------------------------------------------------------------------------
+Column		Data Type	Description
+---------------------------------------------------------------------------------
+Size		int or float	Value of size in nanometers
+J		int or float	Value of Jacobian transform at the respective Size
+---------------------------------------------------------------------------------
+Please use dot separator for float numbers.

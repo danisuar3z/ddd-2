@@ -28,25 +28,16 @@ app.config.suppress_callback_exceptions = True
 # Browser tab name
 app.title = "DdD 2.0"
 
-
+# Lognormal function
 def lognormal(x, mu, s):
     """
-    Standard lognormal function to fit distribution data
+    Standard lognormal function to fit size distribution data
+    with optimize.curve_fit.
     """
     return (1/(x*s*np.sqrt(2*np.pi))) * (np.exp(-(((np.log(x/mu))**2)/(2*s**2))))
 
 
-def instructions():
-    """
-    Esto creo que vuela...
-    """
-    return html.A([
-        """
-        DOI: 10.1039/C9NA00344D"""], href="https://pubs.rsc.org/en/content/articlelanding/2019/na/c9na00344d",
-        # style={"margin-left": "2.4vw", "font-family": ["Geneva", "Tahoma", "Verdana", "sans-serif"]})
-        className="instructions-sidebar")
-
-
+# Web layout
 app.layout = html.Div(
     children=[
         html.Div(
@@ -63,7 +54,10 @@ app.layout = html.Div(
                     ),
                 ]),
                 html.H1(children="Diameter distribution for SNPs", style=dict(color="var(--cremita")),
-                instructions(),
+                html.A([
+                """
+                DOI: 10.1039/C9NA00344D"""], href="https://pubs.rsc.org/en/content/articlelanding/2019/na/c9na00344d",
+                className="instructions-sidebar"),
                 html.Div(
                     [
                         html.Button(
@@ -345,13 +339,13 @@ def parse_AS(contents, filename):
             df_AS = pd.read_csv(
                 io.StringIO(decoded.decode("utf-8")),
                 names=["Wavelength", "Absorbance"],
-                header=0  # Worst case it drops first row if it doesn't have headers
+                header=0
             )
         elif filename.endswith(".xls") or filename.endswith(".xlsx"):
             df_AS = pd.read_excel(
                 io.BytesIO(decoded),
                 names=["Wavelength", "Absorbance"],
-                header=0  # Worst case it drops first row if it doesn't have headers
+                header=0
             )
     except Exception as e:
         print(e)  # TODO: Log? with open append mode datetime now() and exception
