@@ -53,7 +53,7 @@ app.layout = html.Div(
                     src=app.get_asset_url("exactas_blanco.png"), className="exactas-logo",
                     ),
                 ]),
-                html.H1(children="Diameter distribution for SNPs", style=dict(color="var(--cremita")),
+                html.H1(children="Diameter distribution by Deconvolution for SNPs", style=dict(color="var(--cremita")),
                 html.A([
                 """
                 DOI: 10.1039/C9NA00344D"""], href="https://pubs.rsc.org/en/content/articlelanding/2019/na/c9na00344d",
@@ -170,7 +170,6 @@ app.layout = html.Div(
                 html.Button(
                     "Export data", id="btn-download", className="button_submit"
                     ),
-                # html.Br(),
                 html.Div(["Web by ", html.A("Daniel T. Suárez", href="https://github.com/danisuar3z")],
                 style={"margin-left": "10%", "font-family": ["Geneva", "Tahoma", "Verdana", "sans-serif"],
                        "display": "none"})
