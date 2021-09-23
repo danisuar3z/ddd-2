@@ -20,7 +20,10 @@ from dash.exceptions import PreventUpdate
 
 PATH = pathlib.Path(__file__).parent
 
-app = dash.Dash(__name__, meta_tags=[{"name": "viewport", "content": "width=device-width"}])
+app = dash.Dash(
+    __name__,
+    meta_tags=[{"name": "viewport", "content": "width=device-width"}],
+)
 
 # To avoid "ID not found in layout" errors due to nested callbacks
 app.config.suppress_callback_exceptions = True
@@ -143,7 +146,14 @@ app.layout = html.Div(
                             style={"display": "inline-block", "width": "10vh",
                                    "vertical-align": "bottom"}
                         ),
-                        html.Label("6- Input value to scale"),
+                        html.Label("6- Bin size for histogram"),
+                        dbc.Input(
+                            id="input-binsize", type="number",
+                            value=None, min=0, max=1000,
+                            step="any", placeholder="E.g. 0.25",
+                            style={"width": "10vw"}
+                        ),
+                        html.Label("7- Input value to scale"),
                         dbc.Input(
                             id="input-scale", type="number",
                             value=None, min=0, max=1000,
@@ -159,7 +169,7 @@ app.layout = html.Div(
                         )
                     ],
                     ),
-                html.Label("7- Download PSD data to CSV file"),
+                html.Label("8- Download PSD data to CSV file"),
                 dcc.Download(id="download-PSD"),
                 html.Button(
                     "Export data", id="btn-download", className="button_submit"
@@ -214,8 +224,14 @@ def render_content(tab):
         return [
             dcc.Download(id="download-template"),
             html.Div([
-                html.Button("Download templates", id="btn-template", style={"width": "155px", "background-color": "#2da135"}),
-                html.Button("Download sample data", id="btn-sample", style={"width": "170px", "background-color": "#2da135"}),
+                html.Button(
+                    ["Download templates"],
+                    id="btn-template", style={"width": "155px", "background-color": "#2da135"}
+                ),
+                html.Button(
+                    ["Download sample data"],
+                    id="btn-sample", style={"width": "170px", "background-color": "#2da135"}
+                ),
             ], style={"padding-top": "15px", "padding-bottom": "15px"}),
             dcc.Download(id="download-sample"),
             html.Img(id="demo-gif", src=app.get_asset_url("demo.gif"), className="demo-gif"),
