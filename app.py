@@ -271,7 +271,7 @@ def learn_more(n_clicks):
             html.Div(
                 className="demo_container",
                 style={"margin-bottom": "30px"},
-                children=[demo_explanation("demo.md")],
+                children=[demo_explanation("howtocite.md")],
             ),
             f"Close {chr(9650)}",
         )
