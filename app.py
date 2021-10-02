@@ -511,14 +511,14 @@ def extend_list(y_data, sizes, n=10000):
     """
     # y_hist = y_data.copy().to_list()
     freqs = [round(i/y_data.sum()*n) for i in y_data]
-    extended_size = []
+    extended_list = []
     for i, freq in enumerate(freqs):
         if freq == 0:
             continue
         for _ in range(freq):
             # Append the corresponding particle size 'freq' times
-            extended_size.append(sizes.iloc[i])
-    return pd.Series(extended_size)
+            extended_list.append(sizes.iloc[i])
+    return pd.Series(extended_list)
 
 
 def parse_Jac(contents, filename, filter_on, filter_value, bin_size, scale_on, scale_value):
@@ -530,6 +530,7 @@ def parse_Jac(contents, filename, filter_on, filter_value, bin_size, scale_on, s
     global df_Jac
     global NPsizes_frequency
     global y_data
+    global extended_size
     print("DEBUG: parse_Jac being executed!")
     _, content_string = contents.split(",")
 
@@ -559,6 +560,7 @@ def parse_Jac(contents, filename, filter_on, filter_value, bin_size, scale_on, s
                 y_data.iloc[i] = 0
     params, _ = curve_fit(lognormal, df_Jac["Size"], y_data)
     if scale_on:
+        print("ENTRÉ AL ESCALADO")
         y_data *= scale_value
         y_fit = lognormal(fit_x_values, params[0], params[1]) * scale_value
     else:
@@ -566,12 +568,20 @@ def parse_Jac(contents, filename, filter_on, filter_value, bin_size, scale_on, s
     # Convert the data to use histogram (it was Barchart before)
     extended_size = extend_list(y_data, df_Jac.Size)
     factor = extended_size.value_counts().iloc[0]/extended_size.shape[0]*100
-    traces = [
-        go.Histogram(
+    if scale_on:
+        trace_hist = go.Histogram(
+            x=extended_size, name="PSD by DdD",
+            histnorm="", xbins={"size": bin_size},
+            marker_line_width=1,
+        )
+    else:
+        trace_hist = go.Histogram(
             x=extended_size, name="PSD by DdD",
             histnorm="percent", xbins={"size": bin_size},
             marker_line_width=1,
-        ),
+        )
+    traces = [
+        trace_hist,
         go.Scatter(x=fit_x_values, y=y_fit*factor, name="Lognormal fit")
     ]
     mean = np.exp(np.log(params[0]) + 0.5*params[1]*params[1])
@@ -653,15 +663,17 @@ def download_df(click):
     if click is None:
         raise PreventUpdate
     print("DEBUG: CORRIENDO download_df")
-    global df_Jac
-    global y_data
-    df = pd.DataFrame(data=dict(freq=y_data.values), index=df_Jac["Size"])
-    df.index.name = "diameter"
+    # global df_Jac
+    # global y_data
+    global extended_size
+    # df = pd.DataFrame(data=dict(freq=y_data.values), index=df_Jac["Size"])
+    extended_size.name = "size"
+    extended_size.index.name = "id"
     if click:
         # if type == "xlsx":
         #     return dcc.send_data_frame(df.to_excel, "PSD_data.xlsx")
         # elif type == "csv":
-        return dcc.send_data_frame(df.to_csv, "PSD_data.csv")
+        return dcc.send_data_frame(extended_size.to_csv, "PSD_data.csv")
 
 
 @app.callback(
