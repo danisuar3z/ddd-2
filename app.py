@@ -130,7 +130,7 @@ app.layout = html.Div(
                 html.Div(
                     [
                         html.Hr(),
-                        html.Label("5- Input treshold to filter (in nm)"),
+                        html.Label("5- Input treshold to filter from left (nm)"),
                         dbc.Input(
                             id="input-filter", type="number",
                             value=None, min=0, max=10,
@@ -149,8 +149,8 @@ app.layout = html.Div(
                         html.Label("6- Bin size for histogram"),
                         dbc.Input(
                             id="input-binsize", type="number",
-                            value=None, min=0, max=1000,
-                            step="any", placeholder="E.g. 0.25",
+                            value=0.35, min=0, max=1000,
+                            step="any",  # placeholder="E.g. 0,25",
                             style={"width": "10vw"}
                         ),
                         html.Label("7- Input value to scale"),
@@ -225,12 +225,14 @@ def render_content(tab):
             dcc.Download(id="download-template"),
             html.Div([
                 html.Button(
-                    ["Download templates"],
-                    id="btn-template", style={"width": "155px", "background-color": "#2da135"}
+                    [html.Img(src=app.get_asset_url("download.png"), className="download-icon"),
+                    " Download templates"],
+                    id="btn-template", style={"width": "160px", "background-color": "#2da135"}
                 ),
                 html.Button(
-                    ["Download sample data"],
-                    id="btn-sample", style={"width": "170px", "background-color": "#2da135"}
+                    [html.Img(src=app.get_asset_url("download.png"), className="download-icon"),
+                    " Download sample data"],
+                    id="btn-sample", style={"width": "175px", "background-color": "#2da135"}
                 ),
             ], style={"padding-top": "15px", "padding-bottom": "15px"}),
             dcc.Download(id="download-sample"),
@@ -357,7 +359,7 @@ def parse_AS(contents, filename):
                 header=0
             )
     except Exception as e:
-        print(e)  # TODO: Log? with open append mode datetime now() and exception
+        print(e)  # TODO: Log? with open append mode --> datetime now() and exception
         return html.H1(["There was an error processing this file"])
     return dcc.Graph(
         figure = {
@@ -500,7 +502,26 @@ def update_NNLS(click, fn_AS, fn_AD):
 
 # PSD
 
-def parse_Jac(contents, filename, filter_on, filter_value, scale_on, scale_value):
+
+def extend_list(y_data, sizes, n=10000):
+    """
+    This function creates a list to be able to plot an histogram
+    using the frequencies obtained (y_data).
+    'sizes' is the sizes pd.Series from the jacobian file
+    """
+    # y_hist = y_data.copy().to_list()
+    freqs = [round(i/y_data.sum()*n) for i in y_data]
+    extended_size = []
+    for i, freq in enumerate(freqs):
+        if freq == 0:
+            continue
+        for _ in range(freq):
+            # Append the corresponding particle size 'freq' times
+            extended_size.append(sizes.iloc[i])
+    return pd.Series(extended_size)
+
+
+def parse_Jac(contents, filename, filter_on, filter_value, bin_size, scale_on, scale_value):
     """
     Reads file uploaded from the user and parses it into a pandas
     DataFrame, then uses it to graph the PSD.
@@ -529,41 +550,42 @@ def parse_Jac(contents, filename, filter_on, filter_value, scale_on, scale_value
     except Exception as e:
         print(e)  # TODO: Log? with open append mode datetime now() and exception
         return html.H1(["There was an error processing this file"])
-    fit_x_values = np.linspace(min(df_Jac['Size']), max(df_Jac['Size']), 50)
+    fit_x_values = np.linspace(df_Jac['Size'].min(), df_Jac['Size'].max(), 50)
     y_data = NPsizes_frequency*df_Jac["J"]
     y_data /= y_data.max()
     if filter_on:
         for i in df_Jac["Size"].index:
             if df_Jac["Size"].iloc[i] < filter_value:
                 y_data.iloc[i] = 0
-            # elif scale_on:
-            #     y_data.iloc[i] *= scale_value
-    # else:
-    #     if scale_on:
-    #         for i in df_Jac["Size"].index:
-    #             y_data.iloc[i] *= scale_value
     params, _ = curve_fit(lognormal, df_Jac["Size"], y_data)
     if scale_on:
         y_data *= scale_value
         y_fit = lognormal(fit_x_values, params[0], params[1]) * scale_value
     else:
         y_fit = lognormal(fit_x_values, params[0], params[1])
+    # Convert the data to use histogram (it was Barchart before)
+    extended_size = extend_list(y_data, df_Jac.Size)
+    factor = extended_size.value_counts().iloc[0]/extended_size.shape[0]*100
     traces = [
-        go.Bar(x=df_Jac["Size"], y=y_data, name="DdD"),
-        go.Scatter(x=fit_x_values, y=y_fit, name="Lognormal fit")
+        go.Histogram(
+            x=extended_size, name="PSD by DdD",
+            histnorm="percent", xbins={"size": bin_size},
+            marker_line_width=1,
+        ),
+        go.Scatter(x=fit_x_values, y=y_fit*factor, name="Lognormal fit")
     ]
     mean = np.exp(np.log(params[0]) + 0.5*params[1]*params[1])
     dev = np.exp(np.log(params[0]) + 0.5*params[1]*params[1]) * np.sqrt(np.exp(params[1]*params[1]) - 1)
     annotation_mean = {
         "x": 4/5*df_Jac["Size"].max(),
-        "y": 4.1/5*y_data.max(),
+        "y": 4.1/5*y_data.max()*factor,
         "text": f"Mean = {mean:.2f} nm",
         "showarrow": False,
         "font": {"size": 25, "color": "black"}
     }
     annotation_dev = {
         "x": 4/5*df_Jac["Size"].max(),
-        "y": 4.9/7*y_data.max(),
+        "y": 4.9/7*y_data.max()*factor,
         "text": f"Deviation = {dev:.2f} nm",
         "showarrow": False,
         "font": {"size": 25, "color": "black"}
@@ -585,23 +607,25 @@ def parse_Jac(contents, filename, filter_on, filter_value, scale_on, scale_value
     Input("upload-Jac", "contents"),
     Input("switch-filter", "on"),
     Input("input-filter", "value"),
+    Input("input-binsize", "value"),
     Input("switch-scale", "on"),
     Input("input-scale", "value"),
     Input("upload-AS", "filename"),
     Input("upload-AD", "filename"),
     State("upload-Jac", "filename"),
 )
-def update_Jac(contents, filter_on, filter_value, scale_on, scale_value, fn_AS, fn_AD, filename):
+def update_Jac(contents, filter_on, filter_value, bin_size, scale_on, scale_value, fn_AS, fn_AD, filename):
     """
     Called when the user uploads jacobian file and calls parse_Jac
     to make and put the graph in the respective graph div.
     """
     print("DEBUG: FILTER VALUE:", filter_value)
+    print("DEBUG: BIN_SIZE:", bin_size)
     if contents and fn_AS and fn_AD:  # Workaround to the global vars problem
         try:
             children = [
                 html.H6([f"Using \"{filename}\""]),
-                parse_Jac(contents, filename, filter_on, filter_value, scale_on, scale_value)
+                parse_Jac(contents, filename, filter_on, filter_value, bin_size, scale_on, scale_value)
             ]
         except Exception as e:
             print(e)
