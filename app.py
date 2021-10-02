@@ -18,6 +18,9 @@ from dash_daq import BooleanSwitch
 from dash.dependencies import Output, Input, State
 from dash.exceptions import PreventUpdate
 
+# Project imports
+from utils import extend_list
+
 PATH = pathlib.Path(__file__).parent
 
 app = dash.Dash(
@@ -502,25 +505,6 @@ def update_NNLS(click, fn_AS, fn_AD):
 
 # PSD
 
-
-def extend_list(y_data, sizes, n=10000):
-    """
-    This function creates a list to be able to plot an histogram
-    using the frequencies obtained (y_data).
-    'sizes' is the sizes pd.Series from the jacobian file
-    """
-    # y_hist = y_data.copy().to_list()
-    freqs = [round(i/y_data.sum()*n) for i in y_data]
-    extended_list = []
-    for i, freq in enumerate(freqs):
-        if freq == 0:
-            continue
-        for _ in range(freq):
-            # Append the corresponding particle size 'freq' times
-            extended_list.append(sizes.iloc[i])
-    return pd.Series(extended_list)
-
-
 def parse_Jac(contents, filename, filter_on, filter_value, bin_size, scale_on, scale_value):
     """
     Reads file uploaded from the user and parses it into a pandas
@@ -549,7 +533,7 @@ def parse_Jac(contents, filename, filter_on, filter_value, bin_size, scale_on, s
                 header=0,  # It may drop the first row if it hasn't headers
             )
     except Exception as e:
-        print(e)  # TODO: Log? with open append mode datetime now() and exception
+        print("parse_Jac:", e)  # TODO: Log? with open append mode datetime now() and exception
         return html.H1(["There was an error processing this file"])
     fit_x_values = np.linspace(df_Jac['Size'].min(), df_Jac['Size'].max(), 50)
     y_data = NPsizes_frequency*df_Jac["J"]
@@ -563,10 +547,13 @@ def parse_Jac(contents, filename, filter_on, filter_value, bin_size, scale_on, s
         print("ENTRÉ AL ESCALADO")
         y_data *= scale_value
         y_fit = lognormal(fit_x_values, params[0], params[1]) * scale_value
+        # Convert the data to use histogram (it was Barchart before)
+        extended_size = extend_list(y_data, df_Jac.Size)  #, scaling=scale_value)
     else:
         y_fit = lognormal(fit_x_values, params[0], params[1])
-    # Convert the data to use histogram (it was Barchart before)
-    extended_size = extend_list(y_data, df_Jac.Size)
+        # Convert the data to use histogram (it was Barchart before)
+        extended_size = extend_list(y_data, df_Jac.Size)
+    
     factor = extended_size.value_counts().iloc[0]/extended_size.shape[0]*100
     if scale_on:
         trace_hist = go.Histogram(
@@ -582,7 +569,9 @@ def parse_Jac(contents, filename, filter_on, filter_value, bin_size, scale_on, s
         )
     traces = [
         trace_hist,
-        go.Scatter(x=fit_x_values, y=y_fit*factor, name="Lognormal fit")
+        go.Scatter(
+            x=fit_x_values, y=y_fit*factor,
+            name="Lognormal fit")
     ]
     mean = np.exp(np.log(params[0]) + 0.5*params[1]*params[1])
     dev = np.exp(np.log(params[0]) + 0.5*params[1]*params[1]) * np.sqrt(np.exp(params[1]*params[1]) - 1)
@@ -638,7 +627,7 @@ def update_Jac(contents, filter_on, filter_value, bin_size, scale_on, scale_valu
                 parse_Jac(contents, filename, filter_on, filter_value, bin_size, scale_on, scale_value)
             ]
         except Exception as e:
-            print(e)
+            print("update_Jac:", e)
             children = [html.H1("There was an error."),
                         html.H1("Make sure your Jacobian file has headers")
             ]
