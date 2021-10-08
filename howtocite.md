@@ -1,2 +1,3 @@
 ## How to cite
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore eet dolore **magna aliqua**. Ut enim ad minim veniam, quis nostrud exercitation ullamco labois nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+If you find this webapp useful in your research, please consider citing:
+Onna, D., Ipina, I. P., Casafuz, A. F., Mayoral, Á., García, M. R. I., Bilmes, S. A., & Ricci, M. L. M. (2019). Diameter distribution by deconvolution (DdD): absorption spectra as a practical tool for semiconductor nanoparticle PSD determination. Nanoscale Advances, 1(9), 3499-3505. [DOI: 10.1039/C9NA00344D](https://pubs.rsc.org/en/content/articlelanding/2019/na/c9na00344d)

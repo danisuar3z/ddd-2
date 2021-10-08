@@ -156,7 +156,7 @@ app.layout = html.Div(
                             step="any",  # placeholder="E.g. 0,25",
                             style={"width": "10vw"}
                         ),
-                        html.Label("7- Input value to scale"),
+                        html.Label("7- Input value to scale (only for export)"),
                         dbc.Input(
                             id="input-scale", type="number",
                             value=None, min=0, max=1000,
@@ -544,29 +544,31 @@ def parse_Jac(contents, filename, filter_on, filter_value, bin_size, scale_on, s
                 y_data.iloc[i] = 0
     params, _ = curve_fit(lognormal, df_Jac["Size"], y_data)
     if scale_on:
-        print("ENTRÉ AL ESCALADO")
+        print("DEBUG: ENTRÉ AL ESCALADO")
         y_data *= scale_value
-        y_fit = lognormal(fit_x_values, params[0], params[1]) * scale_value
+        y_fit = lognormal(fit_x_values, params[0], params[1])# * scale_value
         # Convert the data to use histogram (it was Barchart before)
         extended_size = extend_list(y_data, df_Jac.Size)  #, scaling=scale_value)
+        aux_val = scale_value
     else:
         y_fit = lognormal(fit_x_values, params[0], params[1])
         # Convert the data to use histogram (it was Barchart before)
         extended_size = extend_list(y_data, df_Jac.Size)
+        aux_val = 1
     
-    factor = extended_size.value_counts().iloc[0]/extended_size.shape[0]*100
-    if scale_on:
-        trace_hist = go.Histogram(
-            x=extended_size, name="PSD by DdD",
-            histnorm="", xbins={"size": bin_size},
-            marker_line_width=1,
-        )
-    else:
-        trace_hist = go.Histogram(
-            x=extended_size, name="PSD by DdD",
-            histnorm="percent", xbins={"size": bin_size},
-            marker_line_width=1,
-        )
+    factor = extended_size.value_counts().iloc[0]/extended_size.shape[0]  #*100
+    # if scale_on:
+    #     trace_hist = go.Histogram(
+    #         x=extended_size, name="PSD by DdD",
+    #         histnorm="", xbins={"size": bin_size},
+    #         marker_line_width=1,
+    #     )
+    # else:
+    trace_hist = go.Histogram(
+        x=extended_size, name="PSD by DdD",
+        histnorm="probability", xbins={"size": bin_size},
+        marker_line_width=1,
+    )
     traces = [
         trace_hist,
         go.Scatter(
@@ -577,14 +579,14 @@ def parse_Jac(contents, filename, filter_on, filter_value, bin_size, scale_on, s
     dev = np.exp(np.log(params[0]) + 0.5*params[1]*params[1]) * np.sqrt(np.exp(params[1]*params[1]) - 1)
     annotation_mean = {
         "x": 4/5*df_Jac["Size"].max(),
-        "y": 4.1/5*y_data.max()*factor,
+        "y": 4.1/5*y_data.max()*factor/aux_val,
         "text": f"Mean = {mean:.2f} nm",
         "showarrow": False,
         "font": {"size": 25, "color": "black"}
     }
     annotation_dev = {
         "x": 4/5*df_Jac["Size"].max(),
-        "y": 4.9/7*y_data.max()*factor,
+        "y": 4.9/7*y_data.max()*factor/aux_val,
         "text": f"Deviation = {dev:.2f} nm",
         "showarrow": False,
         "font": {"size": 25, "color": "black"}
@@ -619,7 +621,7 @@ def update_Jac(contents, filter_on, filter_value, bin_size, scale_on, scale_valu
     to make and put the graph in the respective graph div.
     """
     print("DEBUG: FILTER VALUE:", filter_value)
-    print("DEBUG: BIN_SIZE:", bin_size)
+    print("DEBUG: BIN SIZE:", bin_size)
     if contents and fn_AS and fn_AD:  # Workaround to the global vars problem
         try:
             children = [
