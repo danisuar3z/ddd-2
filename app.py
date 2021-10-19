@@ -19,7 +19,7 @@ from dash.dependencies import Output, Input, State
 from dash.exceptions import PreventUpdate
 
 # Project imports
-from utils import extend_list
+from utils import lognormal, load_df, extend_list
 
 PATH = pathlib.Path(__file__).parent
 
@@ -34,14 +34,6 @@ app.config.suppress_callback_exceptions = True
 # Browser tab name
 app.title = "DdD 2.0"
 
-# Lognormal function
-def lognormal(x, mu, s):
-    """
-    Standard lognormal function to fit size distribution data
-    with optimize.curve_fit.
-    """
-    return (1/(x*s*np.sqrt(2*np.pi))) * (np.exp(-(((np.log(x/mu))**2)/(2*s**2))))
-
 
 # Web layout
 app.layout = html.Div(
@@ -49,9 +41,9 @@ app.layout = html.Div(
         html.Div(
             [
                 html.Div([
-                html.Img(src=app.get_asset_url("ddd.png"), className="ddd-logo"),
-                html.Img(src=app.get_asset_url("conicet_blanco.png"), className="conicet-logo"),
-                html.Img(src=app.get_asset_url("exactas_blanco.png"), className="exactas-logo"),
+                    html.Img(src=app.get_asset_url("ddd.png"), className="ddd-logo"),
+                    html.Img(src=app.get_asset_url("conicet_blanco.png"), className="conicet-logo"),
+                    html.Img(src=app.get_asset_url("exactas_blanco.png"), className="exactas-logo"),
                 ]),
                 html.H1(children="Diameter distribution by Deconvolution for SNPs", style=dict(color="var(--cremita")),
                 # html.A([
@@ -178,8 +170,8 @@ app.layout = html.Div(
                     "Export data", id="btn-download", className="button_submit"
                     ),
                 html.Div(["Web by ", html.A("Daniel T. Suárez", href="https://github.com/danisuar3z")],
-                style={"margin-left": "10%", "font-family": ["Geneva", "Tahoma", "Verdana", "sans-serif"],
-                       "display": "none"})
+                         style={"margin-left": "10%", "font-family": ["Geneva", "Tahoma", "Verdana", "sans-serif"],
+                                "display": "none"})
             ],
             className="four columns instruction",
         ),
@@ -229,12 +221,12 @@ def render_content(tab):
             html.Div([
                 html.Button(
                     [html.Img(src=app.get_asset_url("download.png"), className="download-icon"),
-                    " Download templates"],
+                     " Download templates"],
                     id="btn-template", style={"width": "160px", "background-color": "#2da135"}
                 ),
                 html.Button(
                     [html.Img(src=app.get_asset_url("download.png"), className="download-icon"),
-                    " Download sample data"],
+                     " Download sample data"],
                     id="btn-sample", style={"width": "175px", "background-color": "#2da135"}
                 ),
             ], style={"padding-top": "15px", "padding-bottom": "15px"}),
@@ -258,7 +250,7 @@ def demo_explanation(name):
 
 @app.callback(
     [Output("demo-explanation", "children"),
-    Output("learn-more-button", "children")],
+     Output("learn-more-button", "children")],
     [Input("learn-more-button", "n_clicks")],
 )
 def learn_more(n_clicks):
@@ -284,7 +276,7 @@ def learn_more(n_clicks):
 
 @app.callback(
     [Output("div-about", "children"),
-    Output("btn-about", "children")],
+     Output("btn-about", "children")],
     [Input("btn-about", "n_clicks")],
 )
 def about(n_clicks):
@@ -345,27 +337,16 @@ def parse_AS(contents, filename):
     """
     print("DEBUG: parse_AS being executed!")
     global df_AS
-    _, content_string = contents.split(",")
 
-    decoded = base64.b64decode(content_string)
     try:
-        if filename.endswith(".csv"):
-            df_AS = pd.read_csv(
-                io.StringIO(decoded.decode("utf-8")),
-                names=["Wavelength", "Absorbance"],
-                header=0
-            )
-        elif filename.endswith(".xls") or filename.endswith(".xlsx"):
-            df_AS = pd.read_excel(
-                io.BytesIO(decoded),
-                names=["Wavelength", "Absorbance"],
-                header=0
-            )
+        df_AS = load_df(contents, filename, ["Wavelength", "Absorbance"])
     except Exception as e:
         print(e)  # TODO: Log? with open append mode --> datetime now() and exception
-        return html.H1(["There was an error processing this file"])
+        return html.H1(["There was an error processing this file."])
+    if type(df_AS) == str:
+        return html.H1("Only csv, xls and xlsx are supported.")
     return dcc.Graph(
-        figure = {
+        figure={
             "data": [go.Scatter(x=df_AS.Wavelength, y=df_AS.Absorbance, mode="lines")],
             "layout": {
                 "title": "Absorption Spectra",
@@ -379,7 +360,7 @@ def parse_AS(contents, filename):
 @app.callback(
     Output("graph-AS", "children"),
     [Input("upload-AS", "contents"),
-    State("upload-AS", "filename")]
+     State("upload-AS", "filename")]
 )
 def update_AS(contents, filename):
     """
@@ -395,7 +376,7 @@ def update_AS(contents, filename):
     else:
         children = [html.H1(["Please upload the Absorption Spectra with"]),
                     html.H1(["the specified format first"])
-        ]
+                    ]
     return children
 
 
@@ -410,27 +391,19 @@ def parse_AD(contents, filename):
     """
     print("DEBUG: parse_AD being executed!")
     global df_AD
-    _, content_string = contents.split(",")
 
-    decoded = base64.b64decode(content_string)
     try:
-        if filename.endswith(".csv"):
-            df_AD = pd.read_csv(
-                io.StringIO(decoded.decode("utf-8")),
-                header=0
-            )
-            
-        elif filename.endswith(".xls") or filename.endswith(".xlsx"):
-            df_AD = pd.read_excel(
-                io.BytesIO(decoded),
-                header=0
-            )
+        df_AD = load_df(contents, filename)
     except Exception as e:
-        print(e)  # TODO: Log? with open append mode datetime now() and exception
-        return html.H1(["There was an error processing this file"])
+        print(e)  # TODO: Log? with open append mode --> datetime now() and exception
+        return html.H1(["There was an error processing this file."])
+    if type(df_AD) == str:
+        return html.H1("Only csv, xls and xlsx are supported.")
+
     df_AD.columns = ["Wavelength", *df_AD.columns[1:]]
+
     return dcc.Graph(
-        figure = {
+        figure={
             "data": [go.Scatter(x=df_AD.Wavelength, y=df_AD[col], mode="lines", name=col) for col in df_AD.columns[1:]],
             "layout": {
                 "title": "Absorption Database",
@@ -460,7 +433,7 @@ def update_AD(contents, filename):
     else:
         children = [html.H1(["Please upload the Absorption Database with"]),
                     html.H1(["the specified format first"]),
-        ]
+                    ]
     return children
 
 
@@ -487,20 +460,20 @@ def update_NNLS(click, fn_AS, fn_AD):
         df_NNLS = df_AD[df_AD.columns[1:]]
         NPsizes_frequency, _ = nnls(df_NNLS, df_AS.Absorbance)
         trace_fit = go.Scatter(x=df_AS.Wavelength, y=np.matmul(df_NNLS, NPsizes_frequency),
-            mode="lines", name="Fit",)
+                               mode="lines", name="Fit",)
         traces_AD_NNLS = [go.Scatter(x=df_AD.Wavelength, y=df_AD[col]*NPsizes_frequency[df_NNLS.columns.get_loc(col)], name=col) for col in df_NNLS.columns]
         trace_AS = go.Scatter(x=df_AS.Wavelength, y=df_AS.Absorbance, mode="lines", name="Data")
         traces = [trace_AS, trace_fit, *traces_AD_NNLS]
         layout ={
-                "title": "Absorption Spectra",
-                "xaxis": dict(title="Wavelength (nm)"),
-                "yaxis": dict(title="Absorbance")
+            "title": "Absorption Spectra",
+            "xaxis": dict(title="Wavelength (nm)"),
+            "yaxis": dict(title="Absorbance")
             }
         return dcc.Graph(figure={"data": traces, "layout": layout})
     else:
         return [html.H1("First upload Absorption Spectra and Database,"),
                 html.H1("then click EXECUTE NNLS"),
-        ]
+                ]
 
 
 # PSD
@@ -516,25 +489,16 @@ def parse_Jac(contents, filename, filter_on, filter_value, bin_size, scale_on, s
     global y_data
     global extended_size
     print("DEBUG: parse_Jac being executed!")
-    _, content_string = contents.split(",")
 
-    decoded = base64.b64decode(content_string)
     try:
-        if filename.endswith(".csv"):
-            df_Jac = pd.read_csv(
-                io.StringIO(decoded.decode("utf-8")),
-                names=["Size", "J"],
-                header=0,  # It may drop the first row if it hasn't headers
-            )
-        elif filename.endswith(".xls") or filename.endswith(".xlsx"):
-            df_Jac = pd.read_excel(
-                io.BytesIO(decoded),
-                names=["Size", "J"],
-                header=0,  # It may drop the first row if it hasn't headers
-            )
+        df_Jac = load_df(contents, filename, ["Size", "J"])
     except Exception as e:
-        print("parse_Jac:", e)  # TODO: Log? with open append mode datetime now() and exception
-        return html.H1(["There was an error processing this file"])
+        print(e)  # TODO: Log? with open append mode --> datetime now() and exception
+        return html.H1(["There was an error processing this file."])
+
+    if type(df_Jac) == str:
+        return html.H1("Only csv, xls and xlsx are supported.")
+
     fit_x_values = np.linspace(df_Jac['Size'].min(), df_Jac['Size'].max(), 50)
     y_data = NPsizes_frequency*df_Jac["J"]
     y_data /= y_data.max()
@@ -546,17 +510,17 @@ def parse_Jac(contents, filename, filter_on, filter_value, bin_size, scale_on, s
     if scale_on:
         print("DEBUG: ENTRÉ AL ESCALADO")
         y_data *= scale_value
-        y_fit = lognormal(fit_x_values, params[0], params[1])# * scale_value
+        y_fit = lognormal(fit_x_values, params[0], params[1])  # * scale_value
         # Convert the data to use histogram (it was Barchart before)
-        extended_size = extend_list(y_data, df_Jac.Size)  #, scaling=scale_value)
+        extended_size = extend_list(y_data, df_Jac.Size)  # , scaling=scale_value)
         aux_val = scale_value
     else:
         y_fit = lognormal(fit_x_values, params[0], params[1])
         # Convert the data to use histogram (it was Barchart before)
         extended_size = extend_list(y_data, df_Jac.Size)
         aux_val = 1
-    
-    factor = extended_size.value_counts().iloc[0]/extended_size.shape[0]  #*100
+
+    factor = extended_size.value_counts().iloc[0]/extended_size.shape[0]  # *100
     # if scale_on:
     #     trace_hist = go.Histogram(
     #         x=extended_size, name="PSD by DdD",
@@ -632,11 +596,11 @@ def update_Jac(contents, filter_on, filter_value, bin_size, scale_on, scale_valu
             print("update_Jac:", e)
             children = [html.H1("There was an error."),
                         html.H1("Make sure your Jacobian file has headers")
-            ]
+                        ]
     else:
         children = [html.H1(["Please upload the Jacobian file with"]),
                     html.H1(["the specified format first"])
-        ]
+                    ]
     return children
 
 
