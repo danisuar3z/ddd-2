@@ -1,0 +1,7 @@
+---------------------------------------------------------------------------------
+Column		Data Type   	Description
+---------------------------------------------------------------------------------
+Wavelength	int or float	Value of wavelength in nanometers
+Absorbance	int or float	Value of absorbance at the respective Wavelength
+---------------------------------------------------------------------------------
+Please use dot for decimal separator of float numbers.

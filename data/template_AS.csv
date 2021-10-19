@@ -1,8 +1,5 @@
 Wavelength,Absorbance
----------------------------------------------------------------------------------
-Column		Data Type	Description
----------------------------------------------------------------------------------
-Wavelength	int or float	Value of wavelength in nanometers
-Absorbance	int or float	Value of absorbance at the respective Wavelength
----------------------------------------------------------------------------------
-Please use dot separator for float numbers.
+wav_1,abs_1
+wav_2,abs_2
+wav_3,abs_3
+wav_n,abs_n

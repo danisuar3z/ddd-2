@@ -1,17 +1,5 @@
-Wavelength_nm,diameter_nm_1,diameter_nm_2,diameter_nm_3,diameter_nm_4,...,diameter_nm_n
-wl_1,abs_size_1,abs_size_2,abs_size_3
-wl_1,abs_size_1,abs_size_2,abs_size_3
-wl_1,abs_size_1,abs_size_2,abs_size_3
-wl_1,abs_size_1,abs_size_2,abs_size_3
-
----------------------------------------------------------------------------------
-Metadata
----------------------------------------------------------------------------------
-Column		Data Type	Description
----------------------------------------------------------------------------------
-Wavelength_nm	float		Value of wavelength in nanometers
-diameter_nm_n	float		Value of absorbance at the respective Wavelength
----------------------------------------------------------------------------------
-The name for each size column should be the number of the diameter whose
-absorption spectrum is given.
-Please use dot for decimal separator, including the names of the size columns.
+Wavelength_nm,diameter_nm_1,diameter_nm_2,diameter_nm_3,...,diameter_nm_i
+wav_1,abs_1_diameter_1,abs_1_diameter_2,abs_1_diameter_3,...,abs_1_diameter_i
+wav_2,abs_2_diameter_1,abs_2_diameter_2,abs_2_diameter_3,...,abs_2_diameter_i
+wav_3,abs_3_diameter_1,abs_3_diameter_2,abs_3_diameter_3,...,abs_3_diameter_i
+wav_n,abs_n_diameter_1,abs_n_diameter_2,abs_n_diameter_3,...,abs_n_diameter_i
