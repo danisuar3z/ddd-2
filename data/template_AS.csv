@@ -1,5 +1,6 @@
-Wavelength,Absorbance
-wav_1,abs_1
-wav_2,abs_2
-wav_3,abs_3
-wav_n,abs_n
+Wavelength_nm,Absorbance
+wav_nm_1,abs_1
+wav_nm_2,abs_2
+wav_nm_3,abs_3
+...
+wav_nm_n,abs_n

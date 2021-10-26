@@ -2,7 +2,7 @@
 Column		Data Type	Description
 ---------------------------------------------------------------------------------
 Wavelength_nm	float		Value of wavelength in nanometers
-diameter_nm_n	float		Value of absorbance at the respective Wavelength
+diameter_nm_i	float		Value of absorbance at the n-th Wavelength measured for the i-th diameter
 ---------------------------------------------------------------------------------
 The name for each size column should be the number of the diameter whose
 absorption spectrum is given.
