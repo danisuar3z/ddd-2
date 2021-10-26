@@ -1,3 +1,3 @@
 ## How to cite
 If you find this webapp useful in your research, please consider citing:
-Onna, D., Ipina, I. P., Casafuz, A. F., Mayoral, Á., García, M. R. I., Bilmes, S. A., & Ricci, M. L. M. (2019). Diameter distribution by deconvolution (DdD): absorption spectra as a practical tool for semiconductor nanoparticle PSD determination. Nanoscale Advances, 1(9), 3499-3505. [DOI: 10.1039/C9NA00344D](https://pubs.rsc.org/en/content/articlelanding/2019/na/c9na00344d)
+Onna, D., Ipina, I. P., Casafuz, A. F., Mayoral, A., Garcia, M. R. I., Bilmes, S. A., & Ricci, M. L. M. (2019). Diameter distribution by deconvolution (DdD): absorption spectra as a practical tool for semiconductor nanoparticle PSD determination. Nanoscale Advances, 1(9), 3499-3505. [DOI: 10.1039/C9NA00344D](https://pubs.rsc.org/en/content/articlelanding/2019/na/c9na00344d)
