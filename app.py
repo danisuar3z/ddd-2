@@ -5,7 +5,7 @@ import pathlib
 
 # Science imports
 import numpy as np
-import pandas as pd
+# import pandas as pd
 from scipy.optimize import nnls, curve_fit
 import plotly.graph_objects as go
 
@@ -342,7 +342,7 @@ def parse_AS(contents, filename):
         df_AS = load_df(contents, filename, ["Wavelength", "Absorbance"])
     except Exception as e:
         print(e)  # TODO: Log? with open append mode --> datetime now() and exception
-        return html.H1(["There was an error processing this file."])
+        return html.H1(["There was an error processing this file. Please check metadata required and templates provided."])
     if type(df_AS) == str:
         return html.H1("Only csv, xls and xlsx are supported.")
     return dcc.Graph(
@@ -396,7 +396,7 @@ def parse_AD(contents, filename):
         df_AD = load_df(contents, filename)
     except Exception as e:
         print(e)  # TODO: Log? with open append mode --> datetime now() and exception
-        return html.H1(["There was an error processing this file."])
+        return html.H1(["There was an error processing this file. Please check metadata required and templates provided."])
     if type(df_AD) == str:
         return html.H1("Only csv, xls and xlsx are supported.")
 
@@ -494,7 +494,7 @@ def parse_Jac(contents, filename, filter_on, filter_value, bin_size, scale_on, s
         df_Jac = load_df(contents, filename, ["Size", "J"])
     except Exception as e:
         print(e)  # TODO: Log? with open append mode --> datetime now() and exception
-        return html.H1(["There was an error processing this file."])
+        return html.H1(["There was an error processing this file. Please check metadata required and templates provided."])
 
     if type(df_Jac) == str:
         return html.H1("Only csv, xls and xlsx are supported.")
@@ -595,11 +595,11 @@ def update_Jac(contents, filter_on, filter_value, bin_size, scale_on, scale_valu
         except Exception as e:
             print("update_Jac:", e)
             children = [html.H1("There was an error."),
-                        html.H1("Make sure your Jacobian file has headers")
+                        html.H1("Please check metadata required and templates provided.")
                         ]
     else:
         children = [html.H1(["Please upload the Jacobian file with"]),
-                    html.H1(["the specified format first"])
+                    html.H1(["the specified format first."])
                     ]
     return children
 

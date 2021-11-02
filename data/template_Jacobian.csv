@@ -1,6 +1,6 @@
-Diameter_nm,J_unidades???
+Diameter_nm,Jacobian
 diameter_nm_1,Jac_1
 diameter_nm_2,Jac_2
 diameter_nm_3,Jac_3
 ...
-diameter_i,Jac_i
+diameter_nm_i,Jac_i
