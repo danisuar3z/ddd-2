@@ -457,6 +457,17 @@ def update_NNLS(click, fn_AS, fn_AD):
     global NPsizes_frequency
     print("DEBUG: update_NNLS executed")
     if click and fn_AS and fn_AD:  # Workaround to the global vars problem
+
+        # Dimension check. AS and AD should have same amount of rows
+        if df_AS.shape[0] != df_AD.shape[0]:
+            return html.H1(
+                children=[
+                    "Bad dimensions. Absorption Spectrum and Database should have the same amount of rows.",
+                    html.Br(),
+                    "Please check your files (and templates given) and upload again."
+                ]
+            )
+
         df_NNLS = df_AD[df_AD.columns[1:]]
         NPsizes_frequency, _ = nnls(df_NNLS, df_AS.Absorbance)
         trace_fit = go.Scatter(x=df_AS.Wavelength, y=np.matmul(df_NNLS, NPsizes_frequency),
@@ -490,14 +501,28 @@ def parse_Jac(contents, filename, filter_on, filter_value, bin_size, scale_on, s
     global extended_size
     print("DEBUG: parse_Jac being executed!")
 
-    try:
-        df_Jac = load_df(contents, filename, ["Size", "J"])
-    except Exception as e:
-        print(e)  # TODO: Log? with open append mode --> datetime now() and exception
-        return html.H1(["There was an error processing this file. Please check metadata required and templates provided."])
+    # try:
+    #     print("Llegué acá")
+    df_Jac = load_df(contents, filename, ["Size", "J"])
+    print("df_Jac\n", df_Jac)
+    # except Exception as e:
+    #     print(e)  # TODO: Log? with open append mode --> datetime now() and exception
+    #     return html.H1(["There was an error processing this file. Please check metadata required and templates provided."])
 
     if type(df_Jac) == str:
         return html.H1("Only csv, xls and xlsx are supported.")
+
+    # Dimensions check (Jac values should match AD columns, ergo match NPsizes_frequency)
+    if df_Jac.shape[0] != NPsizes_frequency.shape[0]:
+        return html.H1(
+            ["Bad dimensions. Jacobian values should match the database columns.",
+             html.Br(),
+             f"Amount of known sizes in your database: {NPsizes_frequency.shape[0]}",
+             html.Br(),
+             f"Amount of values in your Jacobian file: {df_Jac.shape[0]}",
+             html.Br(),
+             f"Please check your files (and templates provided) and upload again."]
+        )
 
     fit_x_values = np.linspace(df_Jac['Size'].min(), df_Jac['Size'].max(), 50)
     y_data = NPsizes_frequency*df_Jac["J"]
@@ -588,9 +613,11 @@ def update_Jac(contents, filter_on, filter_value, bin_size, scale_on, scale_valu
     print("DEBUG: BIN SIZE:", bin_size)
     if contents and fn_AS and fn_AD:  # Workaround to the global vars problem
         try:
+            asd = parse_Jac(contents, filename, filter_on, filter_value, bin_size, scale_on, scale_value)
+            print(asd)
             children = [
                 html.H6([f"Using \"{filename}\""]),
-                parse_Jac(contents, filename, filter_on, filter_value, bin_size, scale_on, scale_value)
+                asd
             ]
         except Exception as e:
             print("update_Jac:", e)
