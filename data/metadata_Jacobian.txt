@@ -4,4 +4,6 @@ Column		Data Type   	Description
 Size		int or float	Value of size in nanometers
 J   		int or float	Value of Jacobian transform at the respective Size
 ---------------------------------------------------------------------------------
+ATTENTION: The order of rows in the Jacobian file, MUST match the order of
+columns in the Database file.
 Please use dot for decimal separator of float numbers.

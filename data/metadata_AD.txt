@@ -6,4 +6,6 @@ diameter_nm_i	float		Value of absorbance at the n-th Wavelength measured for the
 ---------------------------------------------------------------------------------
 The name for each size column should be the number of the diameter whose
 absorption spectrum is given.
+The order of rows in the Jacobian file, MUST match the order of columns in the
+Database file.
 Please use dot for decimal separator, including the names of the size columns.
