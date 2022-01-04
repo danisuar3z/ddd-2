@@ -72,6 +72,14 @@ app.layout = html.Div(
                 ]),
                 html.Div(
                     [
+                        html.A(
+                            html.Button(
+                                ["Start again"],
+                                className="button_instruction",
+                                style={"background-color": "green", "margin-top": "2%"}
+                            ),
+                            href="/"
+                        ),
                         html.Div(
                             [
                                 html.Label("1- Upload Absorption Spectra"),
