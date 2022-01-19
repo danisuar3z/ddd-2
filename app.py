@@ -5,7 +5,7 @@ import pathlib
 
 # Science imports
 import numpy as np
-# import pandas as pd
+import pandas as pd
 from scipy.optimize import nnls, curve_fit
 import plotly.graph_objects as go
 
@@ -497,7 +497,7 @@ def update_NNLS(click, fn_AS, fn_AD):
 
 # PSD
 
-def parse_Jac(contents, filename, filter_on, filter_value, bin_size, scale_on, scale_value):
+def parse_Jac(contents, filename, filter_on, filter_value, bin_size):
     """
     Reads file uploaded from the user and parses it into a pandas
     DataFrame, then uses it to graph the PSD.
@@ -509,13 +509,11 @@ def parse_Jac(contents, filename, filter_on, filter_value, bin_size, scale_on, s
     global extended_size
     print("DEBUG: parse_Jac being executed!")
 
-    # try:
-    #     print("Llegué acá")
-    df_Jac = load_df(contents, filename, ["Size", "J"])
-    print("df_Jac\n", df_Jac)
-    # except Exception as e:
-    #     print(e)  # TODO: Log? with open append mode --> datetime now() and exception
-    #     return html.H1(["There was an error processing this file. Please check metadata required and templates provided."])
+    try:
+        df_Jac = load_df(contents, filename, ["Size", "J"])
+    except Exception as e:
+        print(e)
+        return html.H1(["There was an error processing this file. Please check metadata required and templates provided."])
 
     if type(df_Jac) == str:
         return html.H1("Only csv, xls and xlsx are supported.")
@@ -535,32 +533,20 @@ def parse_Jac(contents, filename, filter_on, filter_value, bin_size, scale_on, s
     fit_x_values = np.linspace(df_Jac['Size'].min(), df_Jac['Size'].max(), 50)
     y_data = NPsizes_frequency*df_Jac["J"]
     y_data /= y_data.max()
+
     if filter_on:
         for i in df_Jac["Size"].index:
             if df_Jac["Size"].iloc[i] < filter_value:
                 y_data.iloc[i] = 0
-    params, _ = curve_fit(lognormal, df_Jac["Size"], y_data)
-    if scale_on:
-        print("DEBUG: ENTRÉ AL ESCALADO")
-        y_data *= scale_value
-        y_fit = lognormal(fit_x_values, params[0], params[1])  # * scale_value
-        # Convert the data to use histogram (it was Barchart before)
-        extended_size = extend_list(y_data, df_Jac.Size)  # , scaling=scale_value)
-        aux_val = scale_value
-    else:
-        y_fit = lognormal(fit_x_values, params[0], params[1])
-        # Convert the data to use histogram (it was Barchart before)
-        extended_size = extend_list(y_data, df_Jac.Size)
-        aux_val = 1
 
-    factor = extended_size.value_counts().iloc[0]/extended_size.shape[0]  # *100
-    # if scale_on:
-    #     trace_hist = go.Histogram(
-    #         x=extended_size, name="PSD by DdD",
-    #         histnorm="", xbins={"size": bin_size},
-    #         marker_line_width=1,
-    #     )
-    # else:
+    params, _ = curve_fit(lognormal, df_Jac["Size"], y_data)
+    y_fit = lognormal(fit_x_values, params[0], params[1])
+
+    # Convert the data to use histogram
+    extended_size = extend_list(y_data, df_Jac.Size)
+
+    factor = extended_size.value_counts().iloc[0]/extended_size.shape[0]
+
     trace_hist = go.Histogram(
         x=extended_size, name="PSD by DdD",
         histnorm="probability", xbins={"size": bin_size},
@@ -572,22 +558,25 @@ def parse_Jac(contents, filename, filter_on, filter_value, bin_size, scale_on, s
             x=fit_x_values, y=y_fit*factor,
             name="Lognormal fit")
     ]
-    mean = np.exp(np.log(params[0]) + 0.5*params[1]*params[1])
-    dev = np.exp(np.log(params[0]) + 0.5*params[1]*params[1]) * np.sqrt(np.exp(params[1]*params[1]) - 1)
+
+    mean = np.exp(np.log(params[0])+0.5*params[1]*params[1])
+    dev = np.exp(np.log(params[0])+0.5*params[1]*params[1])*np.sqrt(np.exp(params[1]*params[1])-1)
+
     annotation_mean = {
         "x": 4/5*df_Jac["Size"].max(),
-        "y": 4.1/5*y_data.max()*factor/aux_val,
+        "y": 4.1/5*y_data.max()*factor,
         "text": f"Mean = {mean:.2f} nm",
         "showarrow": False,
         "font": {"size": 25, "color": "black"}
     }
     annotation_dev = {
         "x": 4/5*df_Jac["Size"].max(),
-        "y": 4.9/7*y_data.max()*factor/aux_val,
+        "y": 4.9/7*y_data.max()*factor,
         "text": f"Deviation = {dev:.2f} nm",
         "showarrow": False,
         "font": {"size": 25, "color": "black"}
     }
+
     return dcc.Graph(
         figure={
             "data": traces,
@@ -606,13 +595,11 @@ def parse_Jac(contents, filename, filter_on, filter_value, bin_size, scale_on, s
     Input("switch-filter", "on"),
     Input("input-filter", "value"),
     Input("input-binsize", "value"),
-    Input("switch-scale", "on"),
-    Input("input-scale", "value"),
     Input("upload-AS", "filename"),
     Input("upload-AD", "filename"),
     State("upload-Jac", "filename"),
 )
-def update_Jac(contents, filter_on, filter_value, bin_size, scale_on, scale_value, fn_AS, fn_AD, filename):
+def update_Jac(contents, filter_on, filter_value, bin_size, fn_AS, fn_AD, filename):
     """
     Called when the user uploads jacobian file and calls parse_Jac
     to make and put the graph in the respective graph div.
@@ -621,7 +608,7 @@ def update_Jac(contents, filter_on, filter_value, bin_size, scale_on, scale_valu
     print("DEBUG: BIN SIZE:", bin_size)
     if contents and fn_AS and fn_AD:  # Workaround to the global vars problem
         try:
-            asd = parse_Jac(contents, filename, filter_on, filter_value, bin_size, scale_on, scale_value)
+            asd = parse_Jac(contents, filename, filter_on, filter_value, bin_size)
             print(asd)
             children = [
                 html.H6([f"Using \"{filename}\""]),
@@ -644,8 +631,10 @@ def update_Jac(contents, filter_on, filter_value, bin_size, scale_on, scale_valu
 @app.callback(
     Output("download-PSD", "data"),
     Input("btn-download", "n_clicks"),
+    State("switch-scale", "on"),
+    State("input-scale", "value"),
 )
-def download_df(click):
+def download_df(click, scale_on, scale_value):
     """
     Sends the PSD data to a Download component when
     export button is clicked.
@@ -653,17 +642,15 @@ def download_df(click):
     if click is None:
         raise PreventUpdate
     print("DEBUG: CORRIENDO download_df")
-    # global df_Jac
-    # global y_data
-    global extended_size
-    # df = pd.DataFrame(data=dict(freq=y_data.values), index=df_Jac["Size"])
-    extended_size.name = "size"
-    extended_size.index.name = "id"
+    global y_data
+    if scale_on:
+        data = y_data/y_data.sum()*scale_value
+    else:
+        data = y_data/y_data.sum()
+    df = pd.DataFrame(data=dict(freq=data.values), index=df_Jac["Size"])
+    df.index.name = "size"
     if click:
-        # if type == "xlsx":
-        #     return dcc.send_data_frame(df.to_excel, "PSD_data.xlsx")
-        # elif type == "csv":
-        return dcc.send_data_frame(extended_size.to_csv, "PSD_data.csv")
+        return dcc.send_data_frame(df.to_csv, "PSD_data.csv")
 
 
 @app.callback(
