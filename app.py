@@ -608,11 +608,10 @@ def update_Jac(contents, filter_on, filter_value, bin_size, fn_AS, fn_AD, filena
     print("DEBUG: BIN SIZE:", bin_size)
     if contents and fn_AS and fn_AD:  # Workaround to the global vars problem
         try:
-            asd = parse_Jac(contents, filename, filter_on, filter_value, bin_size)
-            print(asd)
+            psd_graph = parse_Jac(contents, filename, filter_on, filter_value, bin_size)
             children = [
                 html.H6([f"Using \"{filename}\""]),
-                asd
+                psd_graph
             ]
         except Exception as e:
             print("update_Jac:", e)
