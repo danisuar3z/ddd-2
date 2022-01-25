@@ -75,14 +75,14 @@ app.layout = html.Div(
                         html.A(
                             html.Button(
                                 ["Start again"],
-                                className="button_instruction",
+                                className="button_instruction start",
                                 style={"background-color": "green", "margin-top": "2%"}
                             ),
                             href="/"
                         ),
                         html.Div(
                             [
-                                html.Label("1- Upload Absorption Spectra"),
+                                html.Label("1- Upload Absorption Spectra", id="uno"),
                                 dcc.Upload(
                                     id="upload-AS",
                                     children=html.Div([
@@ -140,7 +140,8 @@ app.layout = html.Div(
                             step=0.05,
                             # step="any",
                             placeholder="E.g. 2,4",
-                            style={"width": "10vw"}
+                            style={"width": "10vw"},
+                            className="my_inputs"
                         ),
                         BooleanSwitch(
                             id="switch-filter",
@@ -149,19 +150,21 @@ app.layout = html.Div(
                             style={"display": "inline-block", "width": "10vh",
                                    "vertical-align": "bottom"}
                         ),
-                        html.Label("6- Bin size for histogram"),
+                        html.Label("6- Bin size for histogram", id="binsize"),
                         dbc.Input(
                             id="input-binsize", type="number",
                             value=0.35, min=0, max=1000,
                             step="any",  # placeholder="E.g. 0,25",
-                            style={"width": "10vw"}
+                            style={"width": "10vw"},
+                            className="my_inputs"
                         ),
                         html.Label("7- Input value to scale (only for export)"),
                         dbc.Input(
                             id="input-scale", type="number",
                             value=None, min=0, max=1000,
                             step="any", placeholder="E.g. 30",
-                            style={"width": "10vw"}
+                            style={"width": "10vw"},
+                            className="my_inputs"
                         ),
                         BooleanSwitch(
                             id="switch-scale",
@@ -169,13 +172,13 @@ app.layout = html.Div(
                             color="#BE4B53",
                             style={"display": "inline-block", "width": "10vh",
                                    "vertical-align": "bottom"}
-                        )
+                        ),
+                        html.Label("8- Download PSD data to CSV file", id="ocho"),
+                        dcc.Download(id="download-PSD"),
+                        html.Button(
+                            "Export data", id="btn-download", className="button_submit"
+                            ),
                     ],
-                    ),
-                html.Label("8- Download PSD data to CSV file"),
-                dcc.Download(id="download-PSD"),
-                html.Button(
-                    "Export data", id="btn-download", className="button_submit"
                     ),
                 html.Div(["Web by ", html.A("Daniel T. Suárez", href="https://github.com/danisuar3z")],
                          style={"margin-left": "10%", "font-family": ["Geneva", "Tahoma", "Verdana", "sans-serif"],
@@ -685,4 +688,4 @@ def download_sample(click):
 
 if __name__ == '__main__':
     app.run_server(port=5050, debug=True)
-    # app.run_server(host="0.0.0.0")#a, debug=True)
+    # app.run_server(host="0.0.0.0", debug=True)
