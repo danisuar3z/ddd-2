@@ -1,6 +1,6 @@
 # Utility imports
-import io
-import base64
+# import io
+# import base64
 import pathlib
 
 # Science imports
@@ -230,15 +230,18 @@ def render_content(tab):
                 html.Button(
                     [html.Img(src=app.get_asset_url("download.png"), className="download-icon"),
                      " Download templates"],
-                    id="btn-template", style={"width": "160px", "background-color": "#2da135"}
+                    id="btn-template", style={"width": "160px", "background-color": "#2da135"},
+                    className="btn-down-help",
                 ),
                 html.Button(
                     [html.Img(src=app.get_asset_url("download.png"), className="download-icon"),
                      " Download sample data"],
-                    id="btn-sample", style={"width": "175px", "background-color": "#2da135"}
+                    id="btn-sample", style={"width": "175px", "background-color": "#2da135"},
+                    className="btn-down-help",
                 ),
             ], style={"padding-top": "15px", "padding-bottom": "15px"}),
             dcc.Download(id="download-sample"),
+            html.H1("Example animation", style={"margin-left": "2%", "color": "black"}),
             html.Img(id="demo-gif", src=app.get_asset_url("demo.gif"), className="demo-gif"),
         ]
 
@@ -583,6 +586,7 @@ def parse_Jac(contents, filename, filter_on, filter_value, bin_size):
             "layout": go.Layout(
                 title="Particle Size Distribution by DdD",
                 xaxis=dict(title="Particle size (nm)"),
+                yaxis=dict(title="Density distribution"),
                 annotations=[annotation_mean, annotation_dev]
             )
         }
@@ -681,4 +685,4 @@ def download_sample(click):
 
 if __name__ == '__main__':
     app.run_server(port=5050, debug=True)
-    # app.run_server(host="0.0.0.0", debug=True)
+    # app.run_server(host="0.0.0.0")#a, debug=True)

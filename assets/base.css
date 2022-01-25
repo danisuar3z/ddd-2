@@ -15,6 +15,10 @@
   font-size: 15px; /* NO FUNCIONAAA */
 }
 
+.btn-down-help {
+  margin-left: 3%;
+}
+
 /* Remove Undo Button
 --------------------------------------------------*/
 ._dash-undo-redo {
@@ -173,6 +177,7 @@ body {
 
 .demo-gif {
   width: 80%;
+  margin-left: 1%;
 }
 
 .instructions-sidebar {
