@@ -187,7 +187,7 @@ app.layout = html.Div(
             dcc.Tabs(id="stitching-tabs",
                      value="instructions-tab",
                      children=[
-                         dcc.Tab(label="INSTRUCTIONS", value="instructions-tab"),
+                         dcc.Tab(label="HOW TO USE", value="instructions-tab"),
                          dcc.Tab(label="ABSORPTION SPECTRA", value="AS-tab"),
                          dcc.Tab(label="ABSORPTION DATABASE", value="AD-tab"),
                          dcc.Tab(label="FIT", value="NNLS-tab"),
