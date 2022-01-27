@@ -45,11 +45,11 @@ app.layout = html.Div(
                     html.Img(src=app.get_asset_url("conicet_blanco.png"), className="conicet-logo"),
                     html.Img(src=app.get_asset_url("exactas_blanco.png"), className="exactas-logo"),
                 ]),
-                html.H1(children="Diameter distribution by Deconvolution for SNPs", style=dict(color="var(--cremita")),
-                # html.A([
-                # """
-                # DOI: 10.1039/C9NA00344D"""], href="https://pubs.rsc.org/en/content/articlelanding/2019/na/c9na00344d",
-                # className="instructions-sidebar"),
+                html.H1(children="Diameter distribution by Deconvolution for SNPs", style=dict(color="var(--creamy")),
+                html.A([
+                    """
+                DOI: XX.XXXX/XXXXXXXX"""], href="https://pubs.rsc.org/en/content/articlelanding/2019/na/c9na00344d",
+                    className="instructions-sidebar"),
                 html.Div(
                     [
                         html.Button(
