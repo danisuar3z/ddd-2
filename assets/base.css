@@ -773,10 +773,6 @@ there.
   input[type="submit"],
   input[type="reset"],
   input[type="button"] {
-/*    height: 38px;
-    width: 90px;*/
-    /*padding: 0.5%;*/
-    /*color: #FBFFFF;*/
     text-align: center;
     font-size: 11px;
     font-family: "Geneva", "Tahoma", "Verdana", "sans-serif";
@@ -786,14 +782,9 @@ there.
     text-transform: uppercase;
     text-decoration: none;
     white-space: nowrap;
-    /*background-color: #4181FF;*/
     border: 1px solid white;
     cursor: pointer;
     box-sizing: border-box;
-    /*margin-left: 5px;
-    margin-right: 5px;
-    margin-top: -20px;
-    margin-bottom: -50px;*/
   }
 
   .dcc_upload {
@@ -810,9 +801,7 @@ there.
   }
   
   .about-ddd {
-    /*height: 38px;
-    width: 125px;*/
-    /*padding: 0;*/
+    width: 40%;
     color: #FBFFFF;
     text-align: center;
     font-size: 9.5px;
@@ -820,17 +809,11 @@ there.
     font-weight: 200;
     line-height: 38px;
     letter-spacing: .1rem;
-    /* text-transform: uppercase; */
     text-decoration: none;
     white-space: nowrap;
-    /*background-color: turquoise;*/
     border: 1px solid white;
     cursor: pointer;
     box-sizing: border-box;
-/*    margin-left: 5px;
-    margin-right: 5px;
-    margin-top: -20px;
-    margin-bottom: -50px;*/
   }
 }
 
@@ -849,14 +832,6 @@ there.
   #input-binsize {
     margin-left: -20px;
   }
-
-  /*#uno {
-    display: block !important;
-  }*/
-
-  /*.start {
-    display: block !important;
-  }*/
 
   #ocho {
     margin-left: -45px;
@@ -1004,7 +979,7 @@ there.
 
   .mobile_forms {
     margin:0 auto;
-    display: inherit;
+    display: block;
     text-align: center;
    
   }
