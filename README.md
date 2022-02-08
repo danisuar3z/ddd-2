@@ -1,3 +1,5 @@
+[![Lifecycle:Maturing](https://img.shields.io/badge/Lifecycle-Maturing-007EC6)](<Redirect-URL>)
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 # Diameter distribution by Deconvolution (DdD) - WebApp 2.0
 A Python (Dash by Plotly) Web Application to determine the Particle Size Distribution (PSD) of Semiconductor Nanoparticles (SNPs), using deconvolution.  
 
