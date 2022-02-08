@@ -9,8 +9,8 @@ We believe that this graphical user interface is intuitive for everyone, besides
 # Installation instructions
 If you don't want to install it, you can use the application online at https://determinenpssizes.herokuapp.com/  
 1. To run the WebApp in your machine you need Python 3.9 installed. Download it from [python.org](https://www.python.org/downloads/) (we suggest adding it to PATH when asked in the installation).
-2. Go to https://github.com/danisuar3z/ddd-2 and clone the repository (“git clone <github_url>”) or download as a ZIP (clicking in the Code button) and extract it.
-3. Install the necessary libraries and dependencies listed in the requirements.txt file using pip (“pip install -r requirements.txt”). We suggest using a virtual environment.
+2. Go to https://github.com/danisuar3z/ddd-2 and clone the repository (`git clone <github_url>`) or download as a ZIP (clicking in the Code button) and extract it.
+3. Install the necessary libraries and dependencies listed in the requirements.txt file using pip (`pip install -r requirements.txt`). We suggest using a virtual environment.
 4. In the terminal, make sure you are in the app directory and run the script named app.py (“py app.py”), and a server should be hosted on your machine. You can access it in your browser with the url provided in the terminal.
 
 # Example of usage
