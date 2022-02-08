@@ -28,6 +28,9 @@ app = dash.Dash(
     meta_tags=[{"name": "viewport", "content": "width=device-width"}],
 )
 
+# Server variable for heroku deployment
+server = app.server
+
 # To avoid "ID not found in layout" errors due to nested callbacks
 app.config.suppress_callback_exceptions = True
 
