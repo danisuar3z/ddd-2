@@ -9,6 +9,7 @@ tags:
   - semiconductor nanoparticles
 authors:
   - name: Daniel T. Suárez
+    orcid: 0000-0003-0545-6333
     affiliation: 1
   - name: Sara A. Bilmes
     affiliation: "1, 2"
