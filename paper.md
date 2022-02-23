@@ -8,20 +8,20 @@ tags:
   - deconvolution
   - semiconductor nanoparticles
 authors:
-  - name: No entiendo nada^[co-first author] # note this makes a footnote saying 'co-first author'
-    orcid: 0000-0000-0000-0000
-    affiliation: "1, 2" # (Multiple affiliations must be quoted)
-  - name: Author Without ORCID^[co-first author] # note this makes a footnote saying 'co-first author'
+  - name: Daniel T. Suárez
+    affiliation: 1
+  - name: Sara A. Bilmes
     affiliation: 2
-  - name: Author with no affiliation^[corresponding author]
-    affiliation: 3
+  - name: María Luz Martínez Ricci
+    affiliation: 2
+  - name: Diego Onna
+    affiliation: 1
 affiliations:
- - name: Lyman Spitzer, Jr. Fellow, Princeton University
+ - name: Departamento de Química Inorgánica, Analítica y Química Física, Facultad de Ciencias Exactas y Naturales, Universidad de Buenos Aires, Buenos Aires, Argentina
    index: 1
- - name: Institution Name
+ - name: Instituto de Química Física de los Materiales, Medio Ambiente y Energía, (INQUIMAE) CONICET Universidad de Buenos Aires, Buenos Aires, Argentina
    index: 2
- - name: Independent Researcher
-   index: 3
+
 date: 10 February 2022
 # bibliography: paper.bib
 
@@ -42,3 +42,7 @@ Here we present a WebApp that processes absorbance measurements from a spectroph
 This WebApp is aimed at people in research and development that frequently works with SNPs. As of today, most of the routine characterization is centered in size determination and is strongly limited for the access to advanced equipment.
 Diameter distribution by Deconvolution (DdD) was created to assist anyone who has few access to expensive characterization techniques, making it possible to help researchers with a small budget for working in this field.
 We believe that this graphical user interface is intuitive for everyone, besides that it does not require the user to know any programming language or the analytical methods used in the WebApp.
+
+# Acknowledgements
+
+# References
