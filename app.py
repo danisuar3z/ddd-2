@@ -136,7 +136,7 @@ app.layout = html.Div(
                 html.Div(
                     [
                         html.Hr(),
-                        html.Label("5- Input treshold to filter from left (nm)"),
+                        html.Label("5- Input threshold to filter from left (nm)"),
                         dbc.Input(
                             id="input-filter", type="number",
                             value=None, min=0, max=10,
