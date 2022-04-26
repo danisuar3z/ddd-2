@@ -30,8 +30,8 @@ bibliography: paper.bib
 
 # Summary
 
-Particles with a diameter below 500nm are generating an increasing interest due to their applications in industry and research. In particular, semiconductor nanoparticles (SNPs) have applications in several fields such as catalysis, energy harvesting, light emission, and sensors [kovalenko2015prospects]. These applications rely on their properties which are determined by SNPs size, then the size characterization is essential for these applications [onna2022loading]. A usual way to represent the size is the Particle Size Distribution (PSD - e.g., histogram of sizes), which typically can be obtained by using electron microscopies. These methods look directly at the sample with an electron beam and measure and count the particles, but they are expensive in terms of money and time. Therefore, alternative methods, such as optical methods for size determination, are interesting approaches to a faster and cheaper characterization.
-In this work, we present a WebApp that processes absorbance measurements from a spectrophotometer to obtain the PSD. Applying deconvolution to an absorbance spectrum of the sample (using a database with different sizes’ absorbance spectra), the goal can be achieved with excellent accuracy [onna2019diameter]. The app lets you upload your data, calculate and view the PSD, and export the result.
+Particles with a diameter below 500nm are generating an increasing interest due to their applications in industry and research. In particular, semiconductor nanoparticles (SNPs) have applications in several fields such as catalysis, energy harvesting, light emission, and sensors [@kovalenko2015prospects]. These applications rely on their properties which are determined by SNPs size, then the size characterization is essential for these applications [@onna2022loading]. A usual way to represent the size is the Particle Size Distribution (PSD - e.g., histogram of sizes), which typically can be obtained by using electron microscopies. These methods look directly at the sample with an electron beam and measure and count the particles, but they are expensive in terms of money and time. Therefore, alternative methods, such as optical methods for size determination, are interesting approaches to a faster and cheaper characterization.
+In this work, we present a WebApp that processes absorbance measurements from a spectrophotometer to obtain the PSD. Applying deconvolution to an absorbance spectrum of the sample (using a database with different sizes’ absorbance spectra), the goal can be achieved with excellent accuracy [@onna2019diameter]. The app lets you upload your data, calculate and view the PSD, and export the result.
 
 # Statement of Need
 
@@ -43,5 +43,4 @@ We believe that this graphical user interface is intuitive for everyone since it
 
 This work was supported by Universidad de Buenos Aires (UBACyT 20020190200245BA & 20020190100299BA). D. O., S. A. B. and M. L. M. R are members of CONICET. 
  
-
 # References
