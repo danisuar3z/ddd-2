@@ -17,7 +17,7 @@ authors:
   - name: María Luz Martínez Ricci
     orcid: 0000-0003-1281-6915
     affiliation: 2
-  - name: Diego Onna
+  - name: Diego Onna^[corresponding author]
     orcid: 0000-0002-3158-1915
     affiliation: 1
 affiliations:
@@ -27,6 +27,7 @@ affiliations:
    index: 2
 date: 26 April 2022
 bibliography: paper.bib
+---
 
 # Summary
 
