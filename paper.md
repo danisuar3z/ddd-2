@@ -23,22 +23,27 @@ affiliations:
  - name: Instituto de Química Física de los Materiales, Medio Ambiente y Energía, (INQUIMAE) CONICET Universidad de Buenos Aires, Buenos Aires, Argentina
    index: 2
 
-date: 10 February 2022
+date: 26 April 2022
 # bibliography: paper.bib
----
 
 # Summary
 
-Particles with a diameter below 500 nm are generating an increasing interest for their applications in industry and research. In particular, semiconductor nanoparticles (SNPs) have applications in fields like catalysis, energy harvesting, light emission and sensors (10.1021/nn506223h). These applications rely on their properties which are strongly determined by SNPs size, then size characterization is essential for these applications. An usual way to represent the size is the Particle Size Distribution (PSD - e.g., histogram of sizes), that typically can be resolved using electron microscopes. This method looks directly at the sample with an electron beam and measures and counts the particles, but it is expensive in terms of money and time. Therefore, alternative methods, such as optical size determination, are interesting approaches to a faster and cheaper characterization.
-Here we present a WebApp that processes absorbance measurements from a spectrophotometer to obtain the PSD. Applying deconvolution to an absorbance spectrum of the sample (using a database with different sizes’ absorbance spectra), the goal can be achieved with very good approximation. The app lets you upload your data, calculate and view the PSD, and export the result.
+Particles with a diameter below 500nm are generating an increasing interest due to their applications in industry and research. In particular, semiconductor nanoparticles (SNPs) have applications in several fields such as catalysis, energy harvesting, light emission, and sensors \cite{kovalenko2015prospects}. These applications rely on their properties which are determined by SNPs size, then the size characterization is essential for these applications \cite{onna2022loading}. A usual way to represent the size is the Particle Size Distribution (PSD - e.g., histogram of sizes), which typically can be obtained by using electron microscopies. These methods look directly at the sample with an electron beam and measure and count the particles, but they are expensive in terms of money and time. Therefore, alternative methods, such as optical methods for size determination, are interesting approaches to a faster and cheaper characterization.
+In this work, we present a WebApp that processes absorbance measurements from a spectrophotometer to obtain the PSD. Applying deconvolution to an absorbance spectrum of the sample (using a database with different sizes’ absorbance spectra), the goal can be achieved with excellent accuracy \cite{onna2019diameter}. The app lets you upload your data, calculate and view the PSD, and export the result.
 
 # Statement of Need
 
-This WebApp is aimed at people in research and development that frequently works with SNPs. As of today, most of the routine characterization is centered in size determination and is strongly limited for the access to advanced equipment.
-Diameter distribution by Deconvolution (DdD) was created to assist anyone who has few access to expensive characterization techniques, making it possible to help researchers with a small budget for working in this field.
-We believe that this graphical user interface is intuitive for everyone, besides that it does not require the user to know any programming language or the analytical methods used in the WebApp.
+This WebApp is aimed at people in research and development that frequently work with SNPs. Typically, a routine characterization consists in determining the size distribution of a new SNPs obtained sample. This task is frequently limited due to de access to advanced equipment.
+Diameter distribution by Deconvolution (DdD) was created to assist anyone who has restricted access to expensive characterization techniques, making it possible to help researchers with a small budget for working in this field. It can also be useful for education purposes where advanced techniques are generally not available.
+We believe that this graphical user interface is intuitive for everyone since it does not require the user to know any programming language or any of the analytical methods used in the WebApp.
+
+# Usage
+
+
 
 # Acknowledgements
 
+This work was supported by Universidad de Buenos Aires (UBACyT 20020190200245BA & 20020190100299BA). D. O., S. A. B. and M. L. M. R are members of CONICET. 
+ 
 
 # References
