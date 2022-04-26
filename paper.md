@@ -12,11 +12,14 @@ authors:
     orcid: 0000-0003-0545-6333
     affiliation: 1
   - name: Sara A. Bilmes
+    orcid: 0000-0001-7753-229X
     affiliation: "1, 2"
   - name: María Luz Martínez Ricci
+    orcid: 0000-0003-1281-6915
     affiliation: 2
   - name: Diego Onna
-    affiliation: 1    
+    orcid: 0000-0002-3158-1915
+    affiliation: 1
 affiliations:
  - name: Departamento de Química Inorgánica, Analítica y Química Física, Facultad de Ciencias Exactas y Naturales, Universidad de Buenos Aires, Buenos Aires, Argentina
    index: 1
