@@ -37,7 +37,7 @@ In this work, we present a WebApp that processes absorbance measurements from a 
 # Statement of Need
 
 This WebApp is aimed at people in research and development that frequently work with SNPs. Typically, a routine characterization consists in determining the size distribution of a new SNPs obtained sample. This task is frequently limited due to de access to advanced equipment.
-Diameter distribution by Deconvolution (DdD) was created to assist anyone who has restricted access to expensive characterization techniques, making it possible to help researchers with a small budget for working in this field. It can also be useful for education purposes where advanced techniques are generally not available.
+Diameter distribution by Deconvolution (DdD) was created to assist anyone who has restricted access to expensive characterization techniques, making it possible to help researchers with a small budget for working in this field. It can also be useful for education purposes where advanced techniques are generally not available and new inexpensive techniques are needed [@calcabrini2018exploring].
 We believe that this graphical user interface is intuitive for everyone since it does not require the user to know any programming language or any of the analytical methods used in the WebApp.
 
 # Usage
