@@ -45,6 +45,9 @@ We believe that this graphical user interface is intuitive for everyone since it
 A more specific explanation of its applications can be found in [@onna2019diameter], including why a Jacobian is used.
 
 1. Upload your sample absorbance spectrum file in the respective upload box. The file must follow the structure provided in the template file (data/template_AS.csv). You should see the spectrum plotted in the “ABSORPTION SPECTRA” tab.
+
+![Caption for example figure.](assets/fig1.png){ width=20% }
+
 2. Upload your absorption database spectra file in the respective upload box. The file must follow the structure provided in the template file (data/template_AD.csv). You should see the spectra plotted in the “ABSORPTION DATABASE” tab.
 3. Click the EXECUTE NNLS (Non-Negative Least Squares) button. You should now see both sample, database and the NNLS adjusted spectra plotted in the “FIT” tab.
 4. Upload your jacobian file in the respective upload box. The file must follow the structure provided in the template file (data/template_Jac.csv). You should now see the PSD plotted in the “PSD” tab.
