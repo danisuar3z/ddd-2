@@ -48,13 +48,24 @@ A more specific explanation of its applications can be found in [@onna2019diamet
 
 ![Screenshot of the absortion spectra ploted.\label{fig1}](assets/fig1.png){ width=60% }
 
-2. Upload your absorption database spectra file in the respective upload box. The file must follow the structure provided in the template file (data/template_AD.csv). You should see the spectra plotted in the “ABSORPTION DATABASE” tab.
-3. Click the EXECUTE NNLS (Non-Negative Least Squares) button. You should now see both sample, database and the NNLS adjusted spectra plotted in the “FIT” tab.
-4. Upload your jacobian file in the respective upload box. The file must follow the structure provided in the template file (data/template_Jac.csv). You should now see the PSD plotted in the “PSD” tab.
+2. Upload your absorption database spectra file in the respective upload box. The file must follow the structure provided in the template file (data/template_AD.csv). You should see the spectra plotted in the “ABSORPTION DATABASE” tab as shown in \autoref{fig2}.
+
+![Screenshot of the absortion database ploted.\label{fig2}](assets/fig2.png){ width=60% }
+
+3. Click the EXECUTE NNLS (Non-Negative Least Squares) button. You should now see both sample, database and the NNLS adjusted spectra plotted in the “FIT” tab as shown in \autoref{fig3}.
+
+![Screenshot of the sample, database and the NNLS adjusted spectra plotted.\label{fig3}](assets/fig3.png){ width=60% }
+
+4. Upload your jacobian file in the respective upload box. The file must follow the structure provided in the template file (data/template_Jac.csv). You should now see the PSD plotted in the “PSD” tab as shown in \autoref{fig4}.
+
+![Screenshot of the PSD plotted.\label{fig4}](assets/fig4.png){ width=60% }
 
 Optional
 
-5. You can select a threshold value to filter the smaller sizes. As mentioned in the paper [@onna2019diameter], the numerical error is in the smallest elements of the fitting. The PSD graph should update automatically. Have in mind that depending on your system language, the input box may or may not accept dot or comma as the decimal separator.
+5. You can select a threshold value to filter the smaller sizes. As mentioned in the paper [@onna2019diameter], the numerical error is in the smallest elements of the fitting. The PSD graph should update automatically as shown in \autoref{fig5}. Have in mind that depending on your system language, the input box may or may not accept dot or comma as the decimal separator.
+
+![Screenshot of the PSD plotted with the filter applied.\label{fig5}](assets/fig5.png){ width=60% }
+
 6. You can select a value to scale the resulting PSD to have it in the units you prefer. Potentially you could use an EDS measure of the sample and scale it.
 7. You can export the PSD data to a CSV file. The exported data accounts for the filter value you used.
 
